@@ -1,4 +1,4 @@
-# VNS Gallery
+# VNS.Gallery
 
 A flexible jQuery image gallery plugin with thumbnails, lightbox, carousel, and grid view.
 

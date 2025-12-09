@@ -1,5 +1,5 @@
 /**
- * VNS Gallery - jQuery Plugin
+ * VNS.Gallery - jQuery Plugin
  * Version: 1.0.0
  * A flexible image gallery plugin with thumbnails, lightbox, and grid view
  */
