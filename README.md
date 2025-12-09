@@ -56,21 +56,79 @@ $('.gallery').vnsGallery({
 
 ## Options
 
+### Carousel Options
+
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `useCarousel` | Boolean | `true` | Use carousel navigation (if false, shows static grid) |
 | `loop` | Boolean | `false` | Enable looping through images |
-| `columns` | Number/null | `null` | Number of columns (null = responsive default) |
-| `modalColumns` | Number | `4` | Number of columns in modal grid view |
-| `modalWidth` | String | `'80vw'` | Width of modal in single view |
+| `step` | Number/null | `null` | Number of items to step (null = auto based on visible items) |
 | `showAllButton` | Boolean | `true` | Show "See all" button |
-| `showNavigation` | Boolean | `true` | Show prev/next arrows in modal |
+
+### Static Grid Options (when useCarousel is false)
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `maxImages` | Number/null | `null` | Maximum images to show initially (null = show all) |
+| `showMoreIndicator` | Boolean | `true` | Show "..." indicator when images are hidden |
+| `moreIndicatorAction` | String | `'modal'` | Action on click: 'modal' (open gallery) or 'load' (load more images) |
+| `moreIndicatorText` | String | `'...'` | Text for the more indicator |
+
+### Navigation Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `showNavigation` | Boolean | `true` | Show prev/next arrows in lightbox |
 | `showCounter` | Boolean | `true` | Show image counter |
-| `showCloseButtonGrid` | Boolean | `false` | Show close button in grid view |
-| `showCloseButtonSingle` | Boolean | `false` | Show close button in single view |
+| `showCloseButtonGrid` | Boolean | `false` | Show close (X) button in grid view |
+| `showCloseButtonSingle` | Boolean | `false` | Show close (X) button in single view |
 | `enableKeyboard` | Boolean | `true` | Enable keyboard navigation |
-| `maxImages` | Number/null | `null` | Maximum images to show initially |
-| `step` | Number/null | `null` | Number of items to step (null = auto) |
+| `hoverEffect` | Boolean | `false` | Enable hover effect on thumbnails and more indicator |
+
+### Caption Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `captions` | Boolean | `true` | Show captions if available |
+| `captionSelector` | String | `'img'` | Element to get caption from: 'img' or 'self' (the container) |
+| `captionType` | String | `'attr'` | How to get caption: 'attr', 'data', or 'text' |
+| `captionsData` | String | `'alt'` | Attribute name to get caption from (e.g., 'title', 'alt') |
+| `captionPosition` | String | `'outside-center'` | Caption position: 'top-left', 'top-center', 'top-right', 'bottom-left', 'bottom-center', 'bottom-right', 'outside-left', 'outside-center', 'outside-right' |
+| `captionDelay` | Number | `0` | Delay before showing caption (in milliseconds) |
+
+### Text Labels
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `showAllText` | String | `'Show all'` | Text for "show all" button |
+| `prevText` | String | `'◀'` | Text for previous button in modal |
+| `nextText` | String | `'▶'` | Text for next button in modal |
+| `thumbPrevText` | String | `'‹'` | Text for previous button in thumbnail carousel |
+| `thumbNextText` | String | `'›'` | Text for next button in thumbnail carousel |
+
+### Grid Layout Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `columns` | Number/null | `null` | Number of columns in front carousel (null = use responsive default: 2/3/4) |
+| `modalColumns` | Number | `4` | Number of columns in modal grid view |
+| `modalWidth` | String | `'80vw'` | Width of modal in single view (e.g., '80vw', '1200px', '90%') |
+
+### Event Callbacks
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `onShow` | Function | Called before lightbox opens |
+| `onShown` | Function | Called after lightbox opens |
+| `onChange` | Function | Called before image changes |
+| `onChanged` | Function | Called after image changes |
+| `onClose` | Function | Called before lightbox closes |
+| `onClosed` | Function | Called after lightbox closes |
+| `onNext` | Function | Called before next image |
+| `onNextDone` | Function | Called after next image |
+| `onPrev` | Function | Called before previous image |
+| `onPrevDone` | Function | Called after previous image |
+| `onError` | Function | Called on image load error |
 
 ### Responsive Option
 
