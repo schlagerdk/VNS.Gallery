@@ -140,4 +140,5 @@ MIT License
 
 ## Author
 
-VNS Gallery Plugin
+Vital New Software Aps
+Martin H. Schläger

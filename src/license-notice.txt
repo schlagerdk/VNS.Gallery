@@ -1,11 +1,11 @@
 /**
  * VNS Gallery - jQuery Plugin
  * @version 1.0.0
- * @author VNS
+ * @author Martin H. Schläger
  * @license MIT
- * @repository https://github.com/schlagerdk/vns-gallery
+ * @repository https://github.com/schlagerdk/vns.gallery
  * 
- * Copyright (c) 2025 VNS
+ * Copyright (c) 2025-present Vital New Software ApS
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
