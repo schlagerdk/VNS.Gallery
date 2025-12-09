@@ -6,6 +6,12 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>VNS.Gallery Plugin - Demo</title>
 	<link rel="stylesheet" href="../dist/vns-gallery.css">
+	<script>
+		// Suppress deprecated window.styleMedia warning from jQuery
+		if (window.styleMedia) {
+			delete window.styleMedia;
+		}
+	</script>
 	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 	<script src="../dist/vns-gallery.js"></script>
 	<style>
