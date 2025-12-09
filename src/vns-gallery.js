@@ -1,0 +1,805 @@
+/**
+ * VNS Gallery - jQuery Plugin
+ * Version: 1.0.0
+ * A flexible image gallery plugin with thumbnails, lightbox, and grid view
+ */
+(function ($) {
+	'use strict';
+
+	// Plugin defaults
+	var defaults = {
+		// Thumbnail carousel options
+		useCarousel: true,              // Use carousel navigation (if false, shows static grid)
+		loop: false,                    // Enable looping through images
+		step: null,                     // Number of items to step (null = auto based on visible items)
+		showAllButton: true,            // Show "See all" button
+		
+		// Static grid options (when useCarousel is false)
+		maxImages: null,                // Max images to show initially (null = show all)
+		showMoreIndicator: true,        // Show "..." indicator when images are hidden
+		moreIndicatorAction: 'modal',   // Action on click: 'modal' (open gallery) or 'load' (load more images)
+		moreIndicatorText: '...',       // Text for the more indicator
+		
+		// Navigation options
+		showNavigation: true,           // Show prev/next arrows in lightbox
+		showCounter: true,              // Show image counter
+		showCloseButtonGrid: false,     // Show close (X) button in grid view
+		showCloseButtonSingle: false,   // Show close (X) button in single view
+		enableKeyboard: true,           // Enable keyboard navigation
+		hoverEffect: false,             // Enable hover effect on thumbnails and more indicator
+		
+		// Caption options
+		captions: true,                 // Show captions if available
+		captionSelector: 'img',         // Element to get caption from: 'img' or 'self' (the container)
+		captionType: 'attr',            // How to get caption: 'attr', 'data', or 'text'
+		captionsData: 'alt',            // Attribute name to get caption from (e.g., 'title', 'alt')
+		captionPosition: 'outside-center', // Caption position: 'top-left', 'top-center', 'top-right', 'bottom-left', 'bottom-center', 'bottom-right', 'outside-left', 'outside-center', 'outside-right'
+		captionDelay: 0,                // Delay before showing caption (in ms)
+		
+		// Text labels
+		showAllText: 'Show all',
+		prevText: '◀',
+		nextText: '▶',
+		thumbPrevText: '‹',
+		thumbNextText: '›',
+			
+		// Grid layout
+		columns: null,              // Number of columns in front carousel (null = use responsive default: 2/3/4)
+		modalColumns: 4,            // Number of columns in modal grid view
+		modalWidth: '80vw',         // Width of modal in single view (e.g., '80vw', '1200px', '90%')
+		
+		// Responsive option (like Owl Carousel)
+		// Define different settings for different screen widths
+		// Set to null to disable, or provide breakpoint object
+		responsive: null,
+		
+		// Event callbacks
+		onShow: function() {},          // Before lightbox opens
+		onShown: function() {},         // After lightbox opens
+		onChange: function() {},        // Before image changes
+		onChanged: function() {},       // After image changes
+		onClose: function() {},         // Before lightbox closes
+		onClosed: function() {},        // After lightbox closes
+		onNext: function() {},          // Before next image
+		onNextDone: function() {},      // After next image
+		onPrev: function() {},          // Before previous image
+		onPrevDone: function() {},      // After previous image
+		onError: function() {}          // On image load error
+	};
+
+	// Plugin constructor
+	function vnsGallery(element, options) {
+		this.element = element;
+		this.$element = $(element);
+		this.options = $.extend(true, {}, defaults, options);
+		this.instanceId = 'vnsGallery_' + Math.random().toString(36).substr(2, 9);
+		
+		this.images = [];
+		this.currentIndex = 0;
+		this.thumbPosition = 0;
+		this.itemsPerPage = 0;
+		this.maxPosition = 0;
+		this.modal = null;
+		this.resizeTimeout = null;
+		
+		this.init();
+	}
+
+	// Plugin methods
+	vnsGallery.prototype = {
+		init: function() {
+			// Get images from container
+			this.collectImages();
+			
+			// Apply responsive settings
+			this.applyResponsiveSettings();
+			
+		// Build HTML structure
+		this.buildHTML();
+		
+		// Initialize carousel (only if using carousel)
+		if (this.options.useCarousel) {
+			this.initCarousel();
+		}
+		
+		// Bind events
+		this.bindEvents();			// Trigger custom event
+			this.$element.trigger('init');
+		},
+
+	collectImages: function() {
+		var self = this;
+		this.images = [];
+		
+		this.$element.find('img').each(function() {
+			var $img = $(this);
+			var $parent = $img.parent();
+			
+			// Get caption based on options
+			var caption = '';
+			if (self.options.captions) {
+				var $captionElement = self.options.captionSelector === 'self' ? $parent : $img;
+				
+				if (self.options.captionType === 'data') {
+					caption = $captionElement.data(self.options.captionsData) || '';
+				} else if (self.options.captionType === 'text') {
+					caption = $captionElement.text() || '';
+				} else { // 'attr'
+					caption = $captionElement.attr(self.options.captionsData) || '';
+				}
+			}
+			
+			self.images.push({
+				src: $img.attr('src'),
+				fullsize: $img.attr('data-fullsize') || $img.attr('src'),
+				alt: $img.attr('alt') || '',
+				title: $img.attr('title') || '',
+				caption: caption
+			});
+		});
+	},	buildHTML: function() {
+		var self = this;
+		
+		// Clear original content
+		this.$element.empty();
+		
+		// Add container class
+		this.$element.addClass('vns-gallery-container');
+		
+		// Add hover effect class if enabled
+		if (this.options.hoverEffect) {
+			this.$element.addClass('vns-gallery-hover-enabled');
+		}
+		
+	if (this.options.useCarousel) {
+		// Build thumbnail carousel
+		// Use responsive columns if set, otherwise explicit columns option
+		var columns = this.currentResponsiveColumns || this.options.columns || null;
+		var columnsAttr = columns ? ' data-columns="' + columns + '"' : '';
+		var carouselHTML = '<div class="vns-gallery-thumbnail-carousel-container mt-4"' + columnsAttr + '>';
+		carouselHTML += '<div class="vns-gallery-thumbnail-header">';
+		carouselHTML += '<div class="vns-gallery-thumbnail-nav-controls">';			if (this.options.showAllButton) {
+				carouselHTML += '<button class="vns-gallery-see-all-btn">' + this.options.showAllText + '</button>';
+			}
+			
+			carouselHTML += '<button class="vns-gallery-carousel-nav vns-gallery-thumb-prev">' + this.options.thumbPrevText + '</button>';
+			carouselHTML += '<button class="vns-gallery-carousel-nav vns-gallery-thumb-next">' + this.options.thumbNextText + '</button>';
+			carouselHTML += '</div></div>';
+			carouselHTML += '<div class="vns-gallery-thumbnail-carousel-wrapper">';
+			carouselHTML += '<div class="vns-gallery-thumbnail-carousel">';
+			
+			// Add thumbnail items
+			$.each(this.images, function(index, image) {
+				carouselHTML += '<div class="vns-gallery-thumbnail-item">';
+				carouselHTML += '<img src="' + image.src + '" class="vns-gallery-thumbnail-img" alt="' + image.alt + '" data-index="' + index + '">';
+				carouselHTML += '</div>';
+			});
+			
+			carouselHTML += '</div></div></div>';
+			this.$element.append(carouselHTML);
+		} else {
+		// Build static grid
+		var columns = this.options.columns || 4;
+		var gridHTML = '<div class="vns-gallery-static-grid" data-columns="' + columns + '">';			var maxImages = this.options.maxImages;
+			var totalImages = this.images.length;
+			var imagesToShow = (maxImages && maxImages < totalImages) ? maxImages : totalImages;
+			var hasMore = maxImages && totalImages > maxImages;
+			
+			// Add images
+			$.each(this.images, function(index, image) {
+				if (index < imagesToShow) {
+					gridHTML += '<div class="vns-gallery-static-item">';
+					gridHTML += '<img src="' + image.src + '" class="vns-gallery-thumbnail-img" alt="' + image.alt + '" data-index="' + index + '">';
+					gridHTML += '</div>';
+				}
+			});
+			
+			// Add "more" indicator if needed
+			if (hasMore && this.options.showMoreIndicator) {
+				gridHTML += '<div class="vns-gallery-static-item vns-gallery-more-indicator">';
+				gridHTML += '<div class="vns-gallery-more-indicator-content">' + this.options.moreIndicatorText + '</div>';
+				gridHTML += '</div>';
+			}
+			
+			gridHTML += '</div>';
+			this.$element.append(gridHTML);
+		}
+			
+		// Build lightbox modal
+		var modalId = 'vnsGalleryModal-' + this.generateId();
+		var modalHTML = '<div id="' + modalId + '" class="vns-gallery-modal" tabindex="-1" role="dialog">';
+		modalHTML += '<div class="vns-gallery-modal-dialog">';
+		modalHTML += '<div class="vns-gallery-modal-content">';
+		// Close button for grid view
+		if (this.options.showCloseButtonGrid) {
+			modalHTML += '<button class="vns-gallery-modal-close vns-gallery-close-grid" aria-label="Close">&times;</button>';
+		}
+		// Close button for single view
+		if (this.options.showCloseButtonSingle) {
+			modalHTML += '<button class="vns-gallery-modal-close vns-gallery-close-single" style="display: none;" aria-label="Close">&times;</button>';
+		}
+		modalHTML += '<div class="vns-gallery-modal-body">';			// Grid view
+			modalHTML += '<div class="vns-gallery-grid"></div>';
+			
+			// Single image view
+			modalHTML += '<div class="vns-gallery-single-container" style="display: none; width: ' + this.options.modalWidth + ';">';
+			modalHTML += '<div class="vns-gallery-single">';
+			modalHTML += '<div class="vns-gallery-lightbox-header">';
+			
+			if (this.options.showCounter) {
+				modalHTML += '<div class="vns-gallery-lightbox-counter">1 / ' + this.images.length + '</div>';
+			}
+			
+			modalHTML += '<div class="vns-gallery-lightbox-controls">';
+			
+			if (this.options.showAllButton) {
+				modalHTML += '<button class="vns-gallery-show-all-btn">' + this.options.showAllText + '</button>';
+			}
+			
+			if (this.options.showNavigation) {
+				modalHTML += '<button class="vns-gallery-prev-btn">' + this.options.prevText + '</button>';
+				modalHTML += '<button class="vns-gallery-next-btn">' + this.options.nextText + '</button>';
+			}
+			
+			modalHTML += '</div></div>';
+			
+			// Image wrapper for overlays
+			modalHTML += '<div class="vns-gallery-image-wrapper">';
+			
+			// Loading spinner
+			modalHTML += '<div class="vns-gallery-loading">';
+			modalHTML += '<div class="vns-gallery-spinner"></div>';
+			modalHTML += '</div>';
+			
+			modalHTML += '<img class="vns-gallery-single-img" src="" alt="" style="max-height: 75vh; border-radius: 8px;">';
+			
+			// Caption overlays (top and bottom)
+			if (this.options.captions && this.options.captionPosition.startsWith('top')) {
+				var topClass = 'vns-gallery-caption-' + this.options.captionPosition;
+				modalHTML += '<div class="vns-gallery-caption ' + topClass + '" style="display: none;"></div>';
+			}
+			if (this.options.captions && this.options.captionPosition.startsWith('bottom')) {
+				var bottomClass = 'vns-gallery-caption-' + this.options.captionPosition;
+				modalHTML += '<div class="vns-gallery-caption ' + bottomClass + '" style="display: none;"></div>';
+			}
+			
+			modalHTML += '</div>';
+			
+			// Caption outside (below image wrapper)
+			if (this.options.captions && this.options.captionPosition.startsWith('outside')) {
+				var outsideClass = 'vns-gallery-caption-' + this.options.captionPosition;
+				modalHTML += '<div class="vns-gallery-caption ' + outsideClass + '" style="display: none;"></div>';
+			}
+			
+			modalHTML += '</div></div>';
+			
+			modalHTML += '</div></div></div>';
+			
+			this.$element.append(modalHTML);
+			
+			// Store modal reference
+			this.$modal = $('#' + modalId);
+		this.modalId = modalId;
+		
+		// Add grid images
+		var $grid = this.$modal.find('.vns-gallery-grid');
+		var modalColumns = this.options.modalColumns;
+		$grid.attr('data-columns', modalColumns);
+		// Apply modalWidth to grid container if specified
+		if (this.options.modalWidth) {
+			$grid.css('max-width', this.options.modalWidth);
+		}
+		$.each(this.images, function(index, image) {
+			$grid.append('<div class="col-auto"><img src="' + image.src + '" class="vns-gallery-grid-img" alt="' + image.alt + '" data-index="' + index + '"></div>');
+		});
+	},		initCarousel: function() {
+			this.itemsPerPage = this.getItemsPerPage();
+			this.totalItems = this.images.length;
+			this.maxPosition = Math.max(0, this.totalItems - this.itemsPerPage);
+			this.updateCarousel();
+			this.updateButtonVisibility();
+		},
+
+getItemsPerPage: function() {
+	// Priority: 1) currentResponsiveColumns, 2) explicit columns option, 3) responsive default based on width, 4) fallback to 4
+	if (this.currentResponsiveColumns !== undefined) {
+		return this.currentResponsiveColumns;
+	}
+	if (this.options.columns !== null) {
+		return this.options.columns;
+	}
+	// Default responsive behavior if no columns or responsive set
+	var width = $(window).width();
+	if (width >= 1024) return 4;
+	if (width >= 768) return 3;
+	return 2;
+},
+
+applyResponsiveSettings: function() {
+	if (!this.options.responsive) return;		var width = $(window).width();
+		var breakpoints = [];
+		
+		// Get all breakpoints and sort them
+		for (var bp in this.options.responsive) {
+			if (this.options.responsive.hasOwnProperty(bp)) {
+				breakpoints.push(parseInt(bp));
+			}
+		}
+		breakpoints.sort(function(a, b) { return a - b; });
+		
+		// Find the active breakpoint
+		var activeBreakpoint = 0;
+		for (var i = 0; i < breakpoints.length; i++) {
+			if (width >= breakpoints[i]) {
+				activeBreakpoint = breakpoints[i];
+			}
+		}
+		
+		// Apply settings from active breakpoint
+		var responsiveSettings = this.options.responsive[activeBreakpoint];
+		if (responsiveSettings) {
+			// Store responsive columns
+			if (responsiveSettings.columns !== undefined) {
+				this.currentResponsiveColumns = responsiveSettings.columns;
+			}
+			// You can extend this to support other responsive options like:
+			// loop, showNavigation, etc.
+		}
+	},		getStepSize: function() {
+			return this.options.step !== null ? this.options.step : this.itemsPerPage;
+		},
+
+	updateCarousel: function() {
+		var percentage = -(this.thumbPosition * (100 / this.itemsPerPage));
+		this.$element.find('.vns-gallery-thumbnail-carousel').css('transform', 'translateX(' + percentage + '%)');
+	},	updateButtonVisibility: function() {
+		var $prevBtn = this.$element.find('.vns-gallery-thumb-prev');
+		var $nextBtn = this.$element.find('.vns-gallery-thumb-next');
+		var $seeAllBtn = this.$element.find('.vns-gallery-see-all-btn');
+		var $showAllBtn = this.$modal.find('.vns-gallery-show-all-btn');
+		
+		if (this.totalItems <= this.itemsPerPage) {
+			$prevBtn.hide();
+			$nextBtn.hide();
+			if (this.options.showAllButton) {
+				$seeAllBtn.hide();
+				$showAllBtn.hide();
+			}
+		} else {
+			$prevBtn.show();
+			$nextBtn.show();
+			if (this.options.showAllButton) {
+				$seeAllBtn.show();
+				$showAllBtn.show();
+			}
+			
+			// Disable buttons at boundaries (unless loop is enabled)
+			if (!this.options.loop) {
+				var prevDisabled = this.thumbPosition <= 0;
+				var nextDisabled = this.thumbPosition >= this.maxPosition;
+				$prevBtn.prop('disabled', prevDisabled);
+				$nextBtn.prop('disabled', nextDisabled);
+			} else {
+				$prevBtn.prop('disabled', false);
+				$nextBtn.prop('disabled', false);
+			}
+		}
+	},		bindEvents: function() {
+			var self = this;
+			var namespace = '.' + this.instanceId;
+			
+			// Unbind previous events
+			this.$element.off(namespace);
+			
+			// Thumbnail prev button
+			this.$element.on('click' + namespace, '.vns-gallery-thumb-prev', function(e) {
+				e.preventDefault();
+				e.stopPropagation();
+				self.thumbPrev();
+			});
+			
+			// Thumbnail next button
+			this.$element.on('click' + namespace, '.vns-gallery-thumb-next', function(e) {
+				e.preventDefault();
+				e.stopPropagation();
+				self.thumbNext();
+			});
+			
+			// See all button (in carousel)
+			this.$element.on('click', '.vns-gallery-see-all-btn', function() {
+				self.openGrid();
+			});
+			
+		// Thumbnail click (carousel and static grid)
+		this.$element.on('click', '.vns-gallery-thumbnail-img', function() {
+			var index = $(this).data('index');
+			self.openSingle(index);
+		});
+		
+		// More indicator click (static grid)
+		this.$element.on('click', '.vns-gallery-more-indicator', function() {
+			if (self.options.moreIndicatorAction === 'modal') {
+				self.openGrid();
+			} else if (self.options.moreIndicatorAction === 'load') {
+				self.loadMoreImages();
+			}
+		});			// Grid image click
+			this.$modal.on('click', '.vns-gallery-grid-img', function() {
+				var index = $(this).data('index');
+				self.currentIndex = index;
+				self.showSingleImage();
+			});
+			
+			// Navigation buttons
+			this.$modal.on('click', '.vns-gallery-prev-btn', function() {
+				self.prev();
+			});
+			
+			this.$modal.on('click', '.vns-gallery-next-btn', function() {
+				self.next();
+			});
+			
+			// Show all button (in lightbox)
+			this.$modal.on('click', '.vns-gallery-show-all-btn', function() {
+				self.showGrid();
+			});
+			
+			// Window resize
+			$(window).on('resize.vnsGallery-' + this.modalId, function() {
+				clearTimeout(self.resizeTimeout);
+				self.resizeTimeout = setTimeout(function() {
+					self.handleResize();
+				}, 100);
+			});
+			
+		// Keyboard navigation
+		if (this.options.enableKeyboard) {
+			$(document).on('keydown.vnsGallery-' + this.modalId, function(e) {
+				if (!self.$modal.hasClass('vns-gallery-open')) return;					if (e.key === 'ArrowLeft') {
+						e.preventDefault();
+						self.prev();
+					} else if (e.key === 'ArrowRight') {
+						e.preventDefault();
+						self.next();
+					} else if (e.key === 'Escape') {
+						e.preventDefault();
+						self.close();
+					}
+				});
+			}
+			
+			// Modal close button
+			this.$modal.find('.vns-gallery-modal-close').on('click', function() {
+				self.close();
+			});
+			
+			// Click backdrop to close
+			this.$modal.on('click', function(e) {
+				if ($(e.target).hasClass('vns-gallery-modal')) {
+					self.close();
+				}
+			});
+		},
+
+	thumbPrev: function() {
+		var stepSize = this.getStepSize();
+		var beforePos = this.thumbPosition;
+		this.thumbPosition -= stepSize;
+		
+		if (this.thumbPosition < 0) {
+			if (this.options.loop) {
+				// When wrapping backwards, always go to maxPosition
+				this.thumbPosition = this.maxPosition;
+			} else {
+				this.thumbPosition = Math.max(0, this.thumbPosition);
+			}
+		}
+		
+		this.updateCarousel();
+		this.updateButtonVisibility();
+	},
+
+	thumbNext: function() {
+		var stepSize = this.getStepSize();
+		var beforePos = this.thumbPosition;
+		this.thumbPosition += stepSize;
+		
+		// Check if we need to adjust for step size vs maxPosition
+		if (this.thumbPosition > this.maxPosition) {
+			if (this.options.loop) {
+				// If step would skip over maxPosition, go to maxPosition first if not visited
+				if (beforePos < this.maxPosition && this.thumbPosition > this.maxPosition) {
+					this.thumbPosition = this.maxPosition;
+				} else {
+					this.thumbPosition = 0;
+				}
+			} else {
+				// Clamp to maxPosition
+				this.thumbPosition = Math.min(this.maxPosition, this.thumbPosition);
+			}
+		}
+			
+			this.updateCarousel();
+			this.updateButtonVisibility();
+		},
+
+	handleResize: function() {
+		// Store previous responsive columns
+		var previousColumns = this.currentResponsiveColumns;
+		
+		// Reapply responsive settings
+		this.applyResponsiveSettings();
+		
+		// Check if responsive columns changed - if so, rebuild HTML
+		if (this.options.useCarousel && previousColumns !== this.currentResponsiveColumns) {
+			// Rebuild carousel with new columns
+			this.buildHTML();
+			this.initCarousel();
+			return; // initCarousel will handle all updates
+		}
+		
+		// Update data-columns attribute on carousel if using responsive
+		if (this.options.columns === null && this.currentResponsiveColumns) {
+			var $carousel = this.$element.find('.vns-gallery-thumbnail-carousel-container');
+			if ($carousel.length) {
+				$carousel.attr('data-columns', this.currentResponsiveColumns);
+			}
+		}
+		
+		this.itemsPerPage = this.getItemsPerPage();
+		this.maxPosition = Math.max(0, this.totalItems - this.itemsPerPage);
+		this.thumbPosition = Math.min(this.thumbPosition, this.maxPosition);
+		this.updateCarousel();
+		this.updateButtonVisibility();
+	},	openGrid: function() {
+		this.showGrid();
+		this.showModal();
+	},	openSingle: function(index) {
+		this.currentIndex = index;
+		this.showModal();
+		this.showSingleImage();
+	},	showGrid: function() {
+		this.$modal.find('.vns-gallery-single-container').hide();
+		this.$modal.find('.vns-gallery-grid').show();
+		// Toggle close buttons
+		this.$modal.find('.vns-gallery-close-grid').show();
+		this.$modal.find('.vns-gallery-close-single').hide();
+	},	showSingleImage: function() {
+		var self = this;
+		this.$modal.find('.vns-gallery-grid').hide();
+		this.$modal.find('.vns-gallery-single-container').show();
+	// Toggle close buttons
+	this.$modal.find('.vns-gallery-close-grid').hide();
+	this.$modal.find('.vns-gallery-close-single').show();		var image = this.images[this.currentIndex];
+		
+		// Show loading spinner
+		var $img = this.$modal.find('.vns-gallery-single-img');
+		var $loading = this.$modal.find('.vns-gallery-loading');
+		
+		$loading.addClass('vns-gallery-active');
+		$img.addClass('vns-gallery-loading-img');
+		
+		// Create new image to preload
+		var newImg = new Image();
+		
+		newImg.onload = function() {
+			// Hide loading spinner when image is loaded
+			$loading.removeClass('vns-gallery-active');
+			$img.removeClass('vns-gallery-loading-img');
+		};
+		
+		newImg.onerror = function() {
+			// Hide loading spinner even on error
+			$loading.removeClass('vns-gallery-active');
+			$img.removeClass('vns-gallery-loading-img');
+			self.options.onError.call(self, self.currentIndex, image);
+		};
+		
+		// Start loading the image
+		newImg.src = image.fullsize;
+		
+		// Use fullsize image in single view, thumbnail in grid
+		$img.attr('src', image.fullsize).attr('alt', image.alt);
+			
+			if (this.options.showCounter) {
+				this.$modal.find('.vns-gallery-lightbox-counter').text((this.currentIndex + 1) + ' / ' + this.images.length);
+			}
+			
+			// Update caption
+			this.updateCaption();
+			
+			// Update modal navigation button disabled state
+			this.updateModalNavigation();
+			
+			this.options.onChanged.call(this, this.currentIndex, image);
+			this.$element.trigger('changed', [this.currentIndex, image]);
+		},
+		
+	updateCaption: function() {
+		var self = this;
+		var image = this.images[this.currentIndex];
+		var captionClass = '.vns-gallery-caption-' + this.options.captionPosition;
+		var $caption = this.$modal.find(captionClass);
+		
+		if (this.options.captions && image.caption) {
+			$caption.text(image.caption);
+			
+			if (this.options.captionDelay > 0) {
+				$caption.hide();
+				setTimeout(function() {
+					$caption.fadeIn(300);
+				}, this.options.captionDelay);
+			} else {
+				$caption.show();
+			}
+		} else {
+			$caption.hide();
+		}
+	},		updateModalNavigation: function() {
+			if (!this.options.loop) {
+				var $prevBtn = this.$modal.find('.vns-gallery-prev-btn');
+				var $nextBtn = this.$modal.find('.vns-gallery-next-btn');
+				
+				// Disable prev button if at first image
+				$prevBtn.prop('disabled', this.currentIndex === 0);
+				
+				// Disable next button if at last image
+				$nextBtn.prop('disabled', this.currentIndex === this.images.length - 1);
+			}
+		},
+
+		// Public methods
+		open: function(index) {
+			if (typeof index !== 'undefined') {
+				this.openSingle(index);
+			} else {
+				this.openGrid();
+			}
+	},
+
+	showModal: function() {
+		var self = this;
+		this.options.onShow.call(this);
+		this.$element.trigger('show');
+		
+		this.$modal.addClass('vns-gallery-open');
+		$('body').addClass('vns-gallery-no-scroll');
+		
+		setTimeout(function() {
+			self.options.onShown.call(self);
+			self.$element.trigger('shown');
+		}, 150);
+	},
+
+	hideModal: function() {
+		var self = this;
+		this.options.onClose.call(this);
+		this.$element.trigger('close');
+		
+		this.$modal.removeClass('vns-gallery-open');
+		$('body').removeClass('vns-gallery-no-scroll');
+		
+		setTimeout(function() {
+			self.options.onClosed.call(self);
+			self.$element.trigger('closed');
+		}, 150);
+	},
+
+	close: function() {
+		this.hideModal();
+	},
+
+	next: function() {
+		this.options.onNext.call(this, this.currentIndex);
+			this.$element.trigger('next', [this.currentIndex]);
+			
+			if (this.options.loop) {
+				this.currentIndex = (this.currentIndex + 1) % this.images.length;
+			} else {
+				this.currentIndex = Math.min(this.currentIndex + 1, this.images.length - 1);
+			}
+			
+			this.options.onChange.call(this, this.currentIndex);
+			this.$element.trigger('change', [this.currentIndex]);
+			
+			this.showSingleImage();
+			
+			this.options.onNextDone.call(this, this.currentIndex);
+			this.$element.trigger('nextDone', [this.currentIndex]);
+		},
+
+		prev: function() {
+			this.options.onPrev.call(this, this.currentIndex);
+			this.$element.trigger('prev', [this.currentIndex]);
+			
+			if (this.options.loop) {
+				this.currentIndex = (this.currentIndex - 1 + this.images.length) % this.images.length;
+			} else {
+				this.currentIndex = Math.max(this.currentIndex - 1, 0);
+			}
+			
+			this.options.onChange.call(this, this.currentIndex);
+			this.$element.trigger('change', [this.currentIndex]);
+			
+			this.showSingleImage();
+			
+			this.options.onPrevDone.call(this, this.currentIndex);
+			this.$element.trigger('prevDone', [this.currentIndex]);
+		},
+
+	loadMoreImages: function() {
+		// Remove more indicator
+		this.$element.find('.vns-gallery-more-indicator').remove();
+		
+		var self = this;
+		var $grid = this.$element.find('.vns-gallery-static-grid');
+		
+		// Add remaining images
+		$.each(this.images, function(index, image) {
+			if (index >= self.options.maxImages) {
+				var itemHTML = '<div class="vns-gallery-static-item">';
+				itemHTML += '<img src="' + image.src + '" class="vns-gallery-thumbnail-img" alt="' + image.alt + '" data-index="' + index + '">';
+				itemHTML += '</div>';
+				$grid.append(itemHTML);
+			}
+		});
+		
+		// Update maxImages to show all
+		this.options.maxImages = null;
+	},
+
+	destroy: function() {
+		// Unbind events
+		this.$element.off('.vnsGallery');
+		this.$modal.off('.vnsGallery');
+		$(window).off('resize.vnsGallery-' + this.modalId);
+		$(document).off('keydown.vnsGallery-' + this.modalId);			// Remove modal
+			this.$modal.remove();
+			
+			// Remove plugin data
+			this.$element.removeData('vnsGallery');
+			
+			this.$element.trigger('destroyed');
+		},
+
+		refresh: function() {
+			this.destroy();
+			this.init();
+		},
+
+		generateId: function() {
+			return Math.random().toString(36).substr(2, 9);
+		}
+	};
+
+	// jQuery plugin definition
+	$.fn.vnsGallery = function(options) {
+		var args = Array.prototype.slice.call(arguments, 1);
+		var instance;
+		
+		this.each(function() {
+			var $this = $(this);
+			var data = $this.data('vnsGallery');
+			
+			// Initialize plugin
+			if (!data) {
+				data = new vnsGallery(this, typeof options === 'object' ? options : {});
+				$this.data('vnsGallery', data);
+			}
+			
+			// Call public method
+			if (typeof options === 'string' && typeof data[options] === 'function') {
+				data[options].apply(data, args);
+			}
+			
+			instance = data;
+		});
+		
+		// Return instance for API calls
+		return instance;
+	};
+
+	// Expose defaults
+	$.fn.vnsGallery.defaults = defaults;
+
+})(jQuery);

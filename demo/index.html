@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="da">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>VNS Gallery Plugin - Demo</title>
+	<link rel="stylesheet" href="../dist/vns-gallery.css">
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+	<script src="../dist/vns-gallery.js"></script>
+	<style>
+		/* Demo page styles */
+		body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+		.container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+		h1 { color: #333; border-bottom: 3px solid #007bff; padding-bottom: 10px; }
+		h2 { color: #555; margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; }
+		h3 { color: #666; margin-top: 20px; }
+		.demo-section { margin: 40px 0; }
+		pre { background: #f8f9fa; padding: 15px; border-radius: 4px; overflow-x: auto; border-left: 4px solid #007bff; }
+		code { font-family: 'Courier New', monospace; color: #d63384; }
+		.btn { display: inline-block; padding: 10px 20px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; transition: all 0.2s; }
+		.btn-primary { background: #007bff; color: white; }
+		.btn-primary:hover { background: #0056b3; }
+		.btn-secondary { background: #6c757d; color: white; }
+		.btn-secondary:hover { background: #545b62; }
+		.btn-danger { background: #dc3545; color: white; }
+		.btn-danger:hover { background: #c82333; }
+		.btn-group { margin: 20px 0; }
+		.alert { padding: 15px; margin: 20px 0; border-radius: 4px; }
+		.alert-info { background: #d1ecf1; border-left: 4px solid #0c5460; color: #0c5460; }
+		.table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+		.table th, .table td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+		.table th { background: #f8f9fa; font-weight: 600; }
+		.table-striped tbody tr:nth-child(odd) { background: #f8f9fa; }
+		#eventLog { max-height: 200px; overflow-y: auto; padding: 10px; background: #f8f9fa; border-radius: 4px; font-family: monospace; font-size: 12px; }
+		.event { color: #007bff; font-weight: bold; }
+		.index { color: #d63384; }
+	</style>
+
+	<style>
+		.demo-section {
+			margin-bottom: 60px;
+			padding: 30px;
+			background: #f8f9fa;
+			border-radius: 8px;
+		}
+
+		.demo-section h2 {
+			margin-bottom: 20px;
+			color: #333;
+		}
+
+		.demo-section pre {
+			background: #fff;
+			padding: 15px;
+			border-radius: 5px;
+			border: 1px solid #ddd;
+		}
+
+		.console-output {
+			background: #1e1e1e;
+			color: #d4d4d4;
+			padding: 15px;
+			border-radius: 5px;
+			font-family: 'Courier New', monospace;
+			font-size: 12px;
+			max-height: 200px;
+			overflow-y: auto;
+			margin-top: 10px;
+		}
+
+		.console-output .event {
+			color: #4ec9b0;
+		}
+
+		.console-output .index {
+			color: #ce9178;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container mt-5">
+		<h1 class="mb-4">VNS Gallery Plugin - Demos</h1>
+		<p class="lead">A flexible jQuery gallery plugin with thumbnails, lightbox and grid view</p>
+
+		<!-- Demo 1: Basic Usage -->
+		<div class="demo-section">
+			<h2>Demo 1: Basic Usage</h2>
+			<p>The simplest setup - just add images in a div and initialize the plugin:</p>
+			<pre><code>&lt;div class="myGallery"&gt;
+	&lt;img src="img1.jpg" alt="Image 1"&gt;
+	&lt;img src="img2.jpg" alt="Image 2"&gt;
+	&lt;img src="img3.jpg" alt="Image 3"&gt;
+	...
+&lt;/div&gt;
+
+&lt;script&gt;
+	var gallery = $('.myGallery').vnsGallery();
+&lt;/script&gt;</code></pre>
+
+		<div class="myGallery">
+			<img src="img/thumb/photo-01.jpg" data-fullsize="img/full/photo-01.jpg" alt="Image 1">
+			<img src="img/thumb/photo-02.jpg" data-fullsize="img/full/photo-02.jpg" alt="Billede 2">
+			<img src="img/thumb/photo-03.jpg" data-fullsize="img/full/photo-03.jpg" alt="Billede 3">
+			<img src="img/thumb/photo-04.jpg" data-fullsize="img/full/photo-04.jpg" alt="Billede 4">
+			<img src="img/thumb/photo-05.jpg" data-fullsize="img/full/photo-05.jpg" alt="Billede 5">
+			<img src="img/thumb/photo-06.jpg" data-fullsize="img/full/photo-06.jpg" alt="Billede 6">
+			<img src="img/thumb/photo-07.jpg" data-fullsize="img/full/photo-07.jpg" alt="Billede 7">
+			<img src="img/thumb/photo-08.jpg" data-fullsize="img/full/photo-08.jpg" alt="Billede 8">
+			<img src="img/thumb/photo-09.jpg" data-fullsize="img/full/photo-09.jpg" alt="Billede 9">
+		</div>
+		</div>
+
+		<!-- Demo 2: With Loop -->
+		<div class="demo-section">
+			<h2>Demo 2: With Loop Enabled</h2>
+			<p>Enable loop to navigate in a circle through both thumbnails and lightbox:</p>
+			<pre><code>var gallery = $('.gallery-loop').vnsGallery({
+	loop: true,
+	step: 2  // Step 2 images at a time
+});</code></pre>
+
+		<div class="gallery-loop">
+			<img src="img/thumb/photo-10.jpg" data-fullsize="img/full/photo-10.jpg" alt="Billede 1">
+			<img src="img/thumb/photo-11.jpg" data-fullsize="img/full/photo-11.jpg" alt="Billede 2">
+			<img src="img/thumb/photo-12.jpg" data-fullsize="img/full/photo-12.jpg" alt="Billede 3">
+			<img src="img/thumb/photo-13.jpg" data-fullsize="img/full/photo-13.jpg" alt="Billede 4">
+			<img src="img/thumb/photo-14.jpg" data-fullsize="img/full/photo-14.jpg" alt="Billede 5">
+			<img src="img/thumb/photo-15.jpg" data-fullsize="img/full/photo-15.jpg" alt="Billede 6">
+			<img src="img/thumb/photo-16.jpg" data-fullsize="img/full/photo-16.jpg" alt="Billede 7">
+			<img src="img/thumb/photo-17.jpg" data-fullsize="img/full/photo-17.jpg" alt="Billede 8">
+			<img src="img/thumb/photo-18.jpg" data-fullsize="img/full/photo-18.jpg" alt="Billede 9">
+			<img src="img/thumb/photo-19.jpg" data-fullsize="img/full/photo-19.jpg" alt="Billede 10">
+		</div>
+		</div>
+
+		<!-- Demo 3: Custom Options -->
+		<div class="demo-section">
+			<h2>Demo 3: Custom Options</h2>
+			<p>Customize texts and hide various elements:</p>
+			<pre><code>var gallery = $('.gallery-custom').vnsGallery({
+	showCounter: true,
+	showCloseButtonGrid: true,   // Show X button in grid view
+	showCloseButtonSingle: true, // Show X button in single view
+	showAllText: 'View all images',
+	prevText: '◀ Previous',      // Modal navigation buttons
+	nextText: 'Next ▶',
+	thumbPrevText: '‹',          // Thumbnail carousel buttons
+	thumbNextText: '›'
+});</code></pre>
+
+		<div class="gallery-custom">
+			<img src="img/thumb/photo-15.jpg" data-fullsize="img/full/photo-15.jpg" alt="Billede 1">
+			<img src="img/thumb/photo-16.jpg" data-fullsize="img/full/photo-16.jpg" alt="Billede 2">
+			<img src="img/thumb/photo-17.jpg" data-fullsize="img/full/photo-17.jpg" alt="Billede 3">
+			<img src="img/thumb/photo-18.jpg" data-fullsize="img/full/photo-18.jpg" alt="Billede 4">
+			<img src="img/thumb/photo-19.jpg" data-fullsize="img/full/photo-19.jpg" alt="Billede 5">
+			<img src="img/thumb/photo-20.jpg" data-fullsize="img/full/photo-20.jpg" alt="Billede 6">
+		</div>
+		</div>
+
+		<!-- Demo 4: Events -->
+		<div class="demo-section">
+			<h2>Demo 4: Event Handlers</h2>
+			<p>Attach event handlers to different events:</p>
+			<pre><code>var gallery = $('.gallery-events').vnsGallery({
+	loop: true,
+	onShow: function() {
+		console.log('Lightbox opening...');
+	},
+	onShown: function() {
+		console.log('Lightbox is open');
+	},
+	onChange: function(index) {
+		console.log('Changing to image: ' + (index + 1));
+	},
+	onChanged: function(index, image) {
+		console.log('Now showing image: ' + (index + 1));
+	},
+	onClose: function() {
+		console.log('Closing lightbox...');
+	},
+	onClosed: function() {
+		console.log('Lightbox closed');
+	}
+});
+
+// You can also listen to events via jQuery:
+$('.gallery-events').on('show', function() {
+	console.log('Event: show');
+});</code></pre>
+
+		<div class="gallery-events">
+			<img src="img/thumb/photo-21.jpg" data-fullsize="img/full/photo-21.jpg" alt="Billede 1">
+			<img src="img/thumb/photo-22.jpg" data-fullsize="img/full/photo-22.jpg" alt="Billede 2">
+			<img src="img/thumb/photo-23.jpg" data-fullsize="img/full/photo-23.jpg" alt="Billede 3">
+			<img src="img/thumb/photo-24.jpg" data-fullsize="img/full/photo-24.jpg" alt="Billede 4">
+		</div>			<div class="console-output" id="console-events"></div>
+		</div>
+
+		<!-- Demo 5: Public Methods -->
+		<div class="demo-section">
+			<h2>Demo 5: Public Methods</h2>
+			<p>Use public methods to control the gallery programmatically:</p>
+			<pre><code>var gallery = $('.gallery-methods').vnsGallery();
+
+// Open lightbox with image #2
+gallery.open(1);
+
+// Open grid view
+gallery.open();
+
+// Close lightbox
+gallery.close();
+
+// Next image
+gallery.next();
+
+// Previous image
+gallery.prev();
+
+// Refresh gallery (e.g. after AJAX)
+gallery.refresh();
+
+// Destroy gallery
+gallery.destroy();</code></pre>
+
+		<div class="gallery-methods mb-3">
+			<img src="img/thumb/photo-25.jpg" data-fullsize="img/full/photo-25.jpg" alt="Billede 1">
+			<img src="img/thumb/photo-01.jpg" data-fullsize="img/full/photo-01.jpg" alt="Billede 2">
+			<img src="img/thumb/photo-02.jpg" data-fullsize="img/full/photo-02.jpg" alt="Billede 3">
+			<img src="img/thumb/photo-03.jpg" data-fullsize="img/full/photo-03.jpg" alt="Billede 4">
+			<img src="img/thumb/photo-04.jpg" data-fullsize="img/full/photo-04.jpg" alt="Billede 5">
+			<img src="img/thumb/photo-05.jpg" data-fullsize="img/full/photo-05.jpg" alt="Billede 6">
+		</div>		<div class="btn-group" role="group">
+			<button type="button" class="btn btn-primary" onclick="openGallery()">Open Gallery (Grid)</button>
+			<button type="button" class="btn btn-primary" onclick="openImage()">Open Image #3</button>
+		</div>
+		
+			<div class="alert alert-info mt-3">
+			<strong>Tip:</strong> Once the modal is open, use these methods:
+			<ul class="mb-0">
+				<li><strong>Next/Previous:</strong> Use arrow keys or click navigation buttons in the modal</li>
+				<li><strong>Close:</strong> Press ESC key or click the X button in the modal</li>
+				<li><strong>API calls:</strong> You can also call <code>gallery.next()</code>, <code>gallery.prev()</code>, <code>gallery.close()</code> from browser console</li>
+			</ul>
+		</div>
+		</div>
+
+		<!-- Demo 6: Static Grid -->
+		<div class="demo-section">
+			<h2>Demo 6: Static Grid (No Carousel)</h2>
+			<p>Display images in a static grid without carousel navigation:</p>
+			<pre><code>var gallery = $('.gallery-static').vnsGallery({
+	useCarousel: false,
+	columns: 4,
+	maxImages: 6,
+	showMoreIndicator: true,
+	moreIndicatorAction: 'load'  // or 'modal'
+});</code></pre>
+
+		<div class="gallery-static">
+			<img src="img/thumb/photo-06.jpg" data-fullsize="img/full/photo-06.jpg" alt="Image 1">
+			<img src="img/thumb/photo-07.jpg" data-fullsize="img/full/photo-07.jpg" alt="Image 2">
+			<img src="img/thumb/photo-08.jpg" data-fullsize="img/full/photo-08.jpg" alt="Image 3">
+			<img src="img/thumb/photo-09.jpg" data-fullsize="img/full/photo-09.jpg" alt="Image 4">
+			<img src="img/thumb/photo-10.jpg" data-fullsize="img/full/photo-10.jpg" alt="Image 5">
+			<img src="img/thumb/photo-11.jpg" data-fullsize="img/full/photo-11.jpg" alt="Image 6">
+			<img src="img/thumb/photo-12.jpg" data-fullsize="img/full/photo-12.jpg" alt="Image 7">
+			<img src="img/thumb/photo-13.jpg" data-fullsize="img/full/photo-13.jpg" alt="Image 8">
+			<img src="img/thumb/photo-14.jpg" data-fullsize="img/full/photo-14.jpg" alt="Image 9">
+			<img src="img/thumb/photo-15.jpg" data-fullsize="img/full/photo-15.jpg" alt="Image 10">
+		</div>
+		</div>
+
+	<!-- Demo 7: Many Columns (Front Page) -->
+	<div class="demo-section">
+		<h2>Demo 7: Many Columns on Front Page (10 Columns)</h2>
+		<p>Show many small thumbnails on the front page with columns set to 10:</p>
+		<pre><code>var gallery = $('.gallery-front-columns').vnsGallery({
+	useCarousel: false,
+	columns: 10
+});</code></pre>
+
+		<div class="gallery-front-columns">
+			<img src="img/thumb/photo-16.jpg" data-fullsize="img/full/photo-16.jpg" alt="Image 1">
+			<img src="img/thumb/photo-17.jpg" data-fullsize="img/full/photo-17.jpg" alt="Image 2">
+			<img src="img/thumb/photo-18.jpg" data-fullsize="img/full/photo-18.jpg" alt="Image 3">
+			<img src="img/thumb/photo-19.jpg" data-fullsize="img/full/photo-19.jpg" alt="Image 4">
+			<img src="img/thumb/photo-20.jpg" data-fullsize="img/full/photo-20.jpg" alt="Image 5">
+			<img src="img/thumb/photo-21.jpg" data-fullsize="img/full/photo-21.jpg" alt="Image 6">
+			<img src="img/thumb/photo-22.jpg" data-fullsize="img/full/photo-22.jpg" alt="Image 7">
+			<img src="img/thumb/photo-23.jpg" data-fullsize="img/full/photo-23.jpg" alt="Image 8">
+			<img src="img/thumb/photo-24.jpg" data-fullsize="img/full/photo-24.jpg" alt="Image 9">
+			<img src="img/thumb/photo-25.jpg" data-fullsize="img/full/photo-25.jpg" alt="Image 10">
+			<img src="img/thumb/photo-01.jpg" data-fullsize="img/full/photo-01.jpg" alt="Image 11">
+			<img src="img/thumb/photo-02.jpg" data-fullsize="img/full/photo-02.jpg" alt="Image 12">
+			<img src="img/thumb/photo-03.jpg" data-fullsize="img/full/photo-03.jpg" alt="Image 13">
+			<img src="img/thumb/photo-04.jpg" data-fullsize="img/full/photo-04.jpg" alt="Image 14">
+			<img src="img/thumb/photo-05.jpg" data-fullsize="img/full/photo-05.jpg" alt="Image 15">
+			<img src="img/thumb/photo-06.jpg" data-fullsize="img/full/photo-06.jpg" alt="Image 16">
+			<img src="img/thumb/photo-07.jpg" data-fullsize="img/full/photo-07.jpg" alt="Image 17">
+			<img src="img/thumb/photo-08.jpg" data-fullsize="img/full/photo-08.jpg" alt="Image 18">
+			<img src="img/thumb/photo-09.jpg" data-fullsize="img/full/photo-09.jpg" alt="Image 19">
+			<img src="img/thumb/photo-10.jpg" data-fullsize="img/full/photo-10.jpg" alt="Image 20">
+		</div>
+	</div>
+
+	<!-- Demo 8: Many Columns in Modal -->
+	<div class="demo-section">
+		<h2>Demo 8: Many Columns in Modal (10 Columns)</h2>
+		<p>Show many small thumbnails in modal with modalColumns set to 10:</p>
+		<pre><code>var gallery = $('.gallery-many-columns').vnsGallery({
+	modalColumns: 10,
+	modalWidth: '95vw'
+});</code></pre>
+
+		<div class="gallery-many-columns">
+			<img src="img/thumb/photo-11.jpg" data-fullsize="img/full/photo-11.jpg" alt="Image 1">
+			<img src="img/thumb/photo-12.jpg" data-fullsize="img/full/photo-12.jpg" alt="Image 2">
+			<img src="img/thumb/photo-13.jpg" data-fullsize="img/full/photo-13.jpg" alt="Image 3">
+			<img src="img/thumb/photo-14.jpg" data-fullsize="img/full/photo-14.jpg" alt="Image 4">
+			<img src="img/thumb/photo-15.jpg" data-fullsize="img/full/photo-15.jpg" alt="Image 5">
+			<img src="img/thumb/photo-16.jpg" data-fullsize="img/full/photo-16.jpg" alt="Image 6">
+			<img src="img/thumb/photo-17.jpg" data-fullsize="img/full/photo-17.jpg" alt="Image 7">
+			<img src="img/thumb/photo-18.jpg" data-fullsize="img/full/photo-18.jpg" alt="Image 8">
+			<img src="img/thumb/photo-19.jpg" data-fullsize="img/full/photo-19.jpg" alt="Image 9">
+			<img src="img/thumb/photo-20.jpg" data-fullsize="img/full/photo-20.jpg" alt="Image 10">
+			<img src="img/thumb/photo-21.jpg" data-fullsize="img/full/photo-21.jpg" alt="Image 11">
+			<img src="img/thumb/photo-22.jpg" data-fullsize="img/full/photo-22.jpg" alt="Image 12">
+			<img src="img/thumb/photo-23.jpg" data-fullsize="img/full/photo-23.jpg" alt="Image 13">
+			<img src="img/thumb/photo-24.jpg" data-fullsize="img/full/photo-24.jpg" alt="Image 14">
+			<img src="img/thumb/photo-25.jpg" data-fullsize="img/full/photo-25.jpg" alt="Image 15">
+			<img src="img/thumb/photo-01.jpg" data-fullsize="img/full/photo-01.jpg" alt="Image 16">
+			<img src="img/thumb/photo-02.jpg" data-fullsize="img/full/photo-02.jpg" alt="Image 17">
+			<img src="img/thumb/photo-03.jpg" data-fullsize="img/full/photo-03.jpg" alt="Image 18">
+			<img src="img/thumb/photo-04.jpg" data-fullsize="img/full/photo-04.jpg" alt="Image 19">
+			<img src="img/thumb/photo-05.jpg" data-fullsize="img/full/photo-05.jpg" alt="Image 20">
+		</div>
+	</div>
+
+	<!-- Demo 9: Thumbnail/Fullsize Images -->
+	<div class="demo-section">
+		<h2>Demo 9: Thumbnail vs Fullsize Images</h2>
+		<p>Use <code>data-fullsize</code> attribute to specify a larger image for single view. Carousel and grid use thumbnails for performance, single view loads fullsize:</p>
+		<pre><code>&lt;img src="thumbnail.jpg" data-fullsize="fullsize.jpg" alt="Image"&gt;</code></pre>
+		
+	<div class="gallery-thumbnails">
+		<img src="img/thumb/photo-06.jpg" data-fullsize="img/full/photo-06.jpg" alt="Image 1">
+		<img src="img/thumb/photo-07.jpg" data-fullsize="img/full/photo-07.jpg" alt="Image 2">
+		<img src="img/thumb/photo-08.jpg" data-fullsize="img/full/photo-08.jpg" alt="Image 3">
+		<img src="img/thumb/photo-09.jpg" data-fullsize="img/full/photo-09.jpg" alt="Image 4">
+		<img src="img/thumb/photo-10.jpg" data-fullsize="img/full/photo-10.jpg" alt="Image 5">
+		<img src="img/thumb/photo-11.jpg" data-fullsize="img/full/photo-11.jpg" alt="Image 6">
+	</div>
+	</div>
+
+	<!-- Demo 10: Interactive Builder -->
+	<div class="demo-section">
+		<h2>Demo 10: Interactive Demo Builder 🎨</h2>
+		<p>Customize all options and see the result in real-time:</p>
+		
+		<div class="row">
+			<div class="col-md-4">
+				<h4>Options</h4>
+				<div style="max-height: 600px; overflow-y: auto;">
+					<div class="mb-3">
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" id="opt-useCarousel" checked>
+							<label class="form-check-label" for="opt-useCarousel">Use Carousel</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" id="opt-loop">
+							<label class="form-check-label" for="opt-loop">Enable Loop</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" id="opt-showAllButton" checked>
+							<label class="form-check-label" for="opt-showAllButton">Show "See All" Button</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" id="opt-showNavigation" checked>
+							<label class="form-check-label" for="opt-showNavigation">Modal Navigation</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" id="opt-showCounter" checked>
+							<label class="form-check-label" for="opt-showCounter">Show Counter</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" id="opt-showCloseButtonGrid">
+							<label class="form-check-label" for="opt-showCloseButtonGrid">X in Grid</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" id="opt-showCloseButtonSingle">
+							<label class="form-check-label" for="opt-showCloseButtonSingle">X in Single</label>
+						</div>
+					</div>
+					<div class="mb-2">
+						<label for="opt-columns" class="form-label">Columns (Front Page)</label>
+						<input type="number" class="form-control form-control-sm" id="opt-columns" placeholder="auto (responsive)" min="1" max="12">
+						<small class="text-muted">Leave empty for responsive, or set 1-12</small>
+					</div>
+					<div class="mb-2">
+						<label for="opt-modalColumns" class="form-label">Modal Columns</label>
+						<input type="number" class="form-control form-control-sm" id="opt-modalColumns" value="4" min="1" max="12">
+					</div>
+					<div class="mb-2">
+						<label for="opt-modalWidth" class="form-label">Modal Width</label>
+						<input type="text" class="form-control form-control-sm" id="opt-modalWidth" value="80vw">
+					</div>
+					<div class="mb-2">
+						<label for="opt-step" class="form-label">Step Size</label>
+						<input type="number" class="form-control form-control-sm" id="opt-step" placeholder="auto" min="1">
+					</div>
+				<div class="mb-2">
+					<label for="opt-maxImages" class="form-label">Max Images (Static Grid)</label>
+					<input type="number" class="form-control form-control-sm" id="opt-maxImages" placeholder="all" min="1">
+					<small class="text-muted">Only applies when useCarousel is false</small>
+				</div>
+				<div class="mb-2">
+					<div class="form-check">
+						<input class="form-check-input" type="checkbox" id="opt-showMoreIndicator" checked>
+						<label class="form-check-label" for="opt-showMoreIndicator">Show More Indicator (...)</label>
+					</div>
+					<small class="text-muted">Shows "..." when maxImages is set</small>
+				</div>
+				<div class="mb-2">
+					<label for="opt-moreIndicatorAction" class="form-label">More Indicator Action</label>
+					<select class="form-control form-control-sm" id="opt-moreIndicatorAction">
+						<option value="modal" selected>modal (open gallery)</option>
+						<option value="load">load (load more images)</option>
+					</select>
+				</div>
+				<div class="mb-2">
+					<label for="opt-moreIndicatorText" class="form-label">More Indicator Text</label>
+					<input type="text" class="form-control form-control-sm" id="opt-moreIndicatorText" value="..." placeholder="...">
+				</div>
+				<div class="mb-2">
+					<div class="form-check">
+						<input class="form-check-input" type="checkbox" id="opt-enableKeyboard" checked>
+						<label class="form-check-label" for="opt-enableKeyboard">Enable Keyboard Navigation</label>
+					</div>
+				</div>
+				<div class="mb-2">
+					<div class="form-check">
+						<input class="form-check-input" type="checkbox" id="opt-hoverEffect">
+						<label class="form-check-label" for="opt-hoverEffect">Enable Hover Effect</label>
+					</div>
+					<small class="text-muted">Subtle hover effect on thumbnails and more indicator</small>
+				</div>
+				<div class="mb-2 mt-3">
+					<strong>Caption Settings</strong>
+					<div class="form-check mt-2">
+						<input class="form-check-input" type="checkbox" id="opt-captions" checked>
+						<label class="form-check-label" for="opt-captions">Show Captions</label>
+					</div>
+				</div>
+				<div class="mb-2">
+					<label for="opt-captionPosition" class="form-label">Caption Position</label>
+					<select class="form-control form-control-sm" id="opt-captionPosition">
+						<option value="top-left">top-left</option>
+						<option value="top-center">top-center</option>
+						<option value="top-right">top-right</option>
+						<option value="bottom-left">bottom-left</option>
+						<option value="bottom-center" selected>bottom-center</option>
+						<option value="bottom-right">bottom-right</option>
+						<option value="outside-left">outside-left</option>
+						<option value="outside-center">outside-center</option>
+						<option value="outside-right">outside-right</option>
+					</select>
+				</div>
+				<div class="mb-2">
+					<label for="opt-captionsData" class="form-label">Caption Attribute</label>
+					<input type="text" class="form-control form-control-sm" id="opt-captionsData" value="alt" placeholder="alt">
+					<small class="text-muted">Which attribute to use (title, alt, data-caption, etc.)</small>
+				</div>
+				<div class="mb-2">
+					<label for="opt-captionDelay" class="form-label">Caption Delay (ms)</label>
+					<input type="number" class="form-control form-control-sm" id="opt-captionDelay" value="0" min="0">
+				</div>
+				<div class="mb-2 mt-3">
+					<strong>Responsive Settings</strong>
+					<small class="text-muted d-block mb-2">Set columns for different screen widths (leave empty to disable responsive)</small>
+					<div class="row g-2">
+						<div class="col-4">
+							<label for="opt-responsive-0" class="form-label small">Mobile (0px)</label>
+							<input type="number" class="form-control form-control-sm" id="opt-responsive-0" placeholder="2" min="1" max="12">
+						</div>
+						<div class="col-4">
+							<label for="opt-responsive-768" class="form-label small">Tablet (768px)</label>
+							<input type="number" class="form-control form-control-sm" id="opt-responsive-768" placeholder="3" min="1" max="12">
+						</div>
+						<div class="col-4">
+							<label for="opt-responsive-1024" class="form-label small">Desktop (1024px)</label>
+							<input type="number" class="form-control form-control-sm" id="opt-responsive-1024" placeholder="4" min="1" max="12">
+						</div>
+					</div>
+					<small class="text-muted">Note: Responsive settings override the "Columns" setting above</small>
+				</div>
+				<button class="btn btn-primary w-100 mt-3" onclick="applyDemoOptions()">Apply Options</button>
+				</div>
+			</div>
+			<div class="col-md-8">
+				<h4>Preview</h4>
+		<div id="interactive-gallery" class="gallery-interactive">
+			<img src="img/thumb/photo-12.jpg" data-fullsize="img/full/photo-12.jpg" alt="Beautiful sunset" title="Beautiful sunset over the ocean">
+			<img src="img/thumb/photo-13.jpg" data-fullsize="img/full/photo-13.jpg" alt="Mountain view" title="Majestic mountain landscape">
+			<img src="img/thumb/photo-14.jpg" data-fullsize="img/full/photo-14.jpg" alt="City lights" title="City lights at night">
+			<img src="img/thumb/photo-15.jpg" data-fullsize="img/full/photo-15.jpg" alt="Forest path" title="Peaceful forest path">
+			<img src="img/thumb/photo-16.jpg" data-fullsize="img/full/photo-16.jpg" alt="Ocean waves" title="Ocean waves crashing on shore">
+			<img src="img/thumb/photo-17.jpg" data-fullsize="img/full/photo-17.jpg" alt="Desert dunes" title="Golden desert sand dunes">
+			<img src="img/thumb/photo-18.jpg" data-fullsize="img/full/photo-18.jpg" alt="Snowy peaks" title="Snow covered mountain peaks">
+			<img src="img/thumb/photo-19.jpg" data-fullsize="img/full/photo-19.jpg" alt="Tropical beach" title="Tropical beach paradise">
+			<img src="img/thumb/photo-20.jpg" data-fullsize="img/full/photo-20.jpg" alt="Autumn colors" title="Vibrant autumn foliage">
+		</div>
+				<h4 class="mt-4">Generated Code</h4>
+				<pre style="background: #f5f5f5; padding: 10px; border-radius: 5px;"><code id="generated-code">$('.gallery').vnsGallery();</code></pre>
+				<button class="btn btn-sm btn-secondary" onclick="copyGeneratedCode()">📋 Copy</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Demo 11: Few Images (No Navigation) -->
+	<div class="demo-section">
+		<h2>Demo 11: Few Images (No Navigation)</h2>
+		<p>When there are few images, navigation is automatically hidden:</p>
+		<pre><code>var gallery = $('.gallery-few').vnsGallery();</code></pre>
+
+	<div class="gallery-few">
+		<img src="img/thumb/photo-21.jpg" data-fullsize="img/full/photo-21.jpg" alt="Image 1">
+		<img src="img/thumb/photo-22.jpg" data-fullsize="img/full/photo-22.jpg" alt="Image 2">
+		<img src="img/thumb/photo-23.jpg" data-fullsize="img/full/photo-23.jpg" alt="Image 3">
+	</div>
+	</div>		<!-- Options Reference -->
+		<div class="demo-section">
+			<h2>Options Reference</h2>
+			
+			<h3>Image Attributes</h3>
+			<p>You can use the following data attributes on your <code>&lt;img&gt;</code> tags:</p>
+			<ul>
+				<li><code>data-fullsize</code> - URL to a larger/higher quality image that will be loaded in single view. If not specified, the <code>src</code> will be used.</li>
+			</ul>
+			<p><strong>Example:</strong></p>
+			<pre><code>&lt;img src="thumbnail-small.jpg" data-fullsize="photo-large.jpg" alt="Photo"&gt;</code></pre>
+			<p>This improves performance by loading small thumbnails for the carousel and grid, then loading full-size images only when viewing a single image.</p>
+			
+			<h3 class="mt-4">Plugin Options</h3>
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th>Option</th>
+						<th>Type</th>
+						<th>Default</th>
+						<th>Description</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><code>useCarousel</code></td>
+						<td>Boolean</td>
+						<td>true</td>
+						<td>Use carousel navigation (if false, shows static grid)</td>
+					</tr>
+					<tr>
+						<td><code>loop</code></td>
+						<td>Boolean</td>
+						<td>false</td>
+						<td>Enable looping through images (carousel only)</td>
+					</tr>
+					<tr>
+						<td><code>step</code></td>
+						<td>Number/null</td>
+						<td>null</td>
+						<td>Number of images to step at a time (null = auto based on visible, carousel only)</td>
+					</tr>
+					<tr>
+						<td><code>maxImages</code></td>
+						<td>Number/null</td>
+						<td>null</td>
+						<td>Max images to show initially in static grid (null = show all)</td>
+					</tr>
+					<tr>
+						<td><code>showMoreIndicator</code></td>
+						<td>Boolean</td>
+						<td>true</td>
+						<td>Show "..." indicator when images are hidden in static grid</td>
+					</tr>
+					<tr>
+						<td><code>moreIndicatorAction</code></td>
+						<td>String</td>
+						<td>'modal'</td>
+						<td>Action on indicator click: 'modal' (open gallery) or 'load' (load more)</td>
+					</tr>
+					<tr>
+						<td><code>moreIndicatorText</code></td>
+						<td>String</td>
+						<td>'...'</td>
+						<td>Text for the more indicator</td>
+					</tr>
+					<tr>
+						<td><code>columns</code></td>
+						<td>Number/null</td>
+						<td>null</td>
+						<td>Number of columns in front (null = use responsive breakpoints)</td>
+					</tr>
+					<tr>
+						<td><code>modalColumns</code></td>
+						<td>Number</td>
+						<td>4</td>
+						<td>Number of columns in modal grid view (2-6)</td>
+					</tr>
+					<tr>
+						<td><code>showAllButton</code></td>
+						<td>Boolean</td>
+						<td>true</td>
+						<td>Show "See all" button</td>
+					</tr>
+					<tr>
+						<td><code>showNavigation</code></td>
+						<td>Boolean</td>
+						<td>true</td>
+						<td>Show prev/next arrows in lightbox</td>
+					</tr>
+					<tr>
+						<td><code>showCounter</code></td>
+						<td>Boolean</td>
+						<td>true</td>
+						<td>Show image counter</td>
+					</tr>
+					<tr>
+						<td><code>showCloseButton</code></td>
+						<td>Boolean</td>
+						<td>false</td>
+						<td>Show close (X) button in modal</td>
+					</tr>
+					<tr>
+						<td><code>enableKeyboard</code></td>
+						<td>Boolean</td>
+						<td>true</td>
+						<td>Enable keyboard navigation (arrow keys and ESC)</td>
+					</tr>
+					<tr>
+						<td><code>showAllText</code></td>
+						<td>String</td>
+						<td>'Show all'</td>
+						<td>Text for "Show all" button</td>
+					</tr>
+					<tr>
+						<td><code>prevText</code></td>
+						<td>String</td>
+						<td>'◀'</td>
+						<td>Text/HTML for previous button</td>
+					</tr>
+					<tr>
+						<td><code>nextText</code></td>
+						<td>String</td>
+						<td>'▶'</td>
+						<td>Text/HTML for next button</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<h3 class="mt-4">Event Callbacks</h3>
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th>Event</th>
+						<th>Description</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><code>onShow</code></td>
+						<td>Called before lightbox opens</td>
+					</tr>
+					<tr>
+						<td><code>onShown</code></td>
+						<td>Called after lightbox is opened</td>
+					</tr>
+					<tr>
+						<td><code>onChange</code></td>
+						<td>Called before image changes</td>
+					</tr>
+					<tr>
+						<td><code>onChanged</code></td>
+						<td>Called after image is changed</td>
+					</tr>
+					<tr>
+						<td><code>onClose</code></td>
+						<td>Called before lightbox closes</td>
+					</tr>
+					<tr>
+						<td><code>onClosed</code></td>
+						<td>Called after lightbox is closed</td>
+					</tr>
+					<tr>
+						<td><code>onNext</code></td>
+						<td>Called before next image is shown</td>
+					</tr>
+					<tr>
+						<td><code>onNextDone</code></td>
+						<td>Called after next image is shown</td>
+					</tr>
+					<tr>
+						<td><code>onPrev</code></td>
+						<td>Called before previous image is shown</td>
+					</tr>
+					<tr>
+						<td><code>onPrevDone</code></td>
+						<td>Called after previous image is shown</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<h3 class="mt-4">Public Methods</h3>
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th>Method</th>
+						<th>Description</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><code>open(index)</code></td>
+						<td>Open lightbox (with optional image index)</td>
+					</tr>
+					<tr>
+						<td><code>close()</code></td>
+						<td>Close lightbox</td>
+					</tr>
+					<tr>
+						<td><code>next()</code></td>
+						<td>Go to next image</td>
+					</tr>
+					<tr>
+						<td><code>prev()</code></td>
+						<td>Go to previous image</td>
+					</tr>
+					<tr>
+						<td><code>destroy()</code></td>
+						<td>Destroy gallery instance</td>
+					</tr>
+					<tr>
+						<td><code>refresh()</code></td>
+						<td>Refresh gallery (useful after DOM changes)</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<h3 class="mt-4">jQuery Events</h3>
+			<p>You can also listen to events via jQuery's standard event system:</p>
+			<pre><code>var gallery = $('.myGallery').vnsGallery();
+
+$('.myGallery').on('show', function() { ... });
+$('.myGallery').on('shown', function() { ... });
+$('.myGallery').on('change', function(e, index) { ... });
+$('.myGallery').on('changed', function(e, index, image) { ... });
+$('.myGallery').on('close', function() { ... });
+$('.myGallery').on('closed', function() { ... });
+$('.myGallery').on('next', function(e, index) { ... });
+$('.myGallery').on('prev', function(e, index) { ... });</code></pre>
+		</div>
+
+	</div>
+
+	<script>
+		// Initialize galleries
+		$(document).ready(function () {
+			// Demo 1: Basic
+			$('.myGallery').vnsGallery();
+
+			// Demo 2: With Loop
+			$('.gallery-loop').vnsGallery({
+				loop: true,
+				step: 2
+			});
+
+		// Demo 3: Custom Options
+		$('.gallery-custom').vnsGallery({
+			showCounter: true,
+			showCloseButtonGrid: true,
+			showCloseButtonSingle: true,
+			showAllText: 'View all images',
+			prevText: '◀ Previous',
+			nextText: 'Next ▶',
+			thumbPrevText: '‹',
+			thumbNextText: '›'
+		});			// Demo 4: Events
+			var eventConsole = $('#console-events');
+			function logEvent(msg) {
+				var time = new Date().toLocaleTimeString();
+				eventConsole.append('<div>[' + time + '] ' + msg + '</div>');
+				eventConsole.scrollTop(eventConsole[0].scrollHeight);
+			}
+
+			$('.gallery-events').vnsGallery({
+				loop: true,
+				onShow: function () {
+					logEvent('<span class="event">onShow</span>: Lightbox opening...');
+				},
+				onShown: function () {
+					logEvent('<span class="event">onShown</span>: Lightbox is open');
+				},
+				onChange: function (index) {
+					logEvent('<span class="event">onChange</span>: Changing to image <span class="index">' + (index + 1) + '</span>');
+				},
+				onChanged: function (index, image) {
+					logEvent('<span class="event">onChanged</span>: Now showing image <span class="index">' + (index + 1) + '</span>');
+				},
+				onClose: function () {
+					logEvent('<span class="event">onClose</span>: Closing lightbox...');
+				},
+				onClosed: function () {
+					logEvent('<span class="event">onClosed</span>: Lightbox closed');
+				},
+				onNext: function (index) {
+					logEvent('<span class="event">onNext</span>: Current index: <span class="index">' + index + '</span>');
+				},
+				onNextDone: function (index) {
+					logEvent('<span class="event">onNextDone</span>: New index: <span class="index">' + index + '</span>');
+				},
+				onPrev: function (index) {
+					logEvent('<span class="event">onPrev</span>: Current index: <span class="index">' + index + '</span>');
+				},
+				onPrevDone: function (index) {
+					logEvent('<span class="event">onPrevDone</span>: New index: <span class="index">' + index + '</span>');
+				}
+			});
+
+		// Demo 5: Methods
+		window.gallery = $('.gallery-methods').vnsGallery({
+			loop: true
+		});
+		
+		// Demo 6: Static Grid
+		$('.gallery-static').vnsGallery({
+			useCarousel: false,
+			columns: 4,
+			maxImages: 6,
+			showMoreIndicator: true,
+			moreIndicatorAction: 'load'
+		});
+		
+		// Demo 7: Many Columns (Front Page)
+		$('.gallery-front-columns').vnsGallery({
+			useCarousel: false,
+			columns: 10
+		});
+		
+		// Demo 8: Many Columns (Modal)
+		$('.gallery-many-columns').vnsGallery({
+			modalColumns: 10,
+			modalWidth: '95vw'
+		});
+		
+		// Demo 9: Thumbnail/Fullsize
+		$('.gallery-thumbnails').vnsGallery();
+		
+		// Demo 11: Few images
+		$('.gallery-few').vnsGallery();
+		
+		// Initialize interactive demo
+		applyDemoOptions();
+		});
+
+		// Interactive Demo Builder Functions
+		function applyDemoOptions() {
+			var $gallery = $('#interactive-gallery');
+			
+			// Destroy existing gallery instance
+			if ($gallery.data('vnsGallery')) {
+				$gallery.data('vnsGallery').destroy();
+			}
+			
+		// Reset gallery HTML
+		$gallery.html(`
+			<img src="img/thumb/photo-12.jpg" data-fullsize="img/full/photo-12.jpg" alt="Beautiful sunset" title="Beautiful sunset over the ocean">
+			<img src="img/thumb/photo-13.jpg" data-fullsize="img/full/photo-13.jpg" alt="Mountain view" title="Majestic mountain landscape">
+			<img src="img/thumb/photo-14.jpg" data-fullsize="img/full/photo-14.jpg" alt="City lights" title="City lights at night">
+			<img src="img/thumb/photo-15.jpg" data-fullsize="img/full/photo-15.jpg" alt="Forest path" title="Peaceful forest path">
+			<img src="img/thumb/photo-16.jpg" data-fullsize="img/full/photo-16.jpg" alt="Ocean waves" title="Ocean waves crashing on shore">
+			<img src="img/thumb/photo-17.jpg" data-fullsize="img/full/photo-17.jpg" alt="Desert dunes" title="Golden desert sand dunes">
+			<img src="img/thumb/photo-18.jpg" data-fullsize="img/full/photo-18.jpg" alt="Snowy peaks" title="Snow covered mountain peaks">
+			<img src="img/thumb/photo-19.jpg" data-fullsize="img/full/photo-19.jpg" alt="Tropical beach" title="Tropical beach paradise">
+			<img src="img/thumb/photo-20.jpg" data-fullsize="img/full/photo-20.jpg" alt="Autumn colors" title="Vibrant autumn foliage">
+		`);			// Build options object
+			var options = {
+				useCarousel: $('#opt-useCarousel').is(':checked'),
+				loop: $('#opt-loop').is(':checked'),
+				showAllButton: $('#opt-showAllButton').is(':checked'),
+				showNavigation: $('#opt-showNavigation').is(':checked'),
+				showCounter: $('#opt-showCounter').is(':checked'),
+				showCloseButtonGrid: $('#opt-showCloseButtonGrid').is(':checked'),
+				showCloseButtonSingle: $('#opt-showCloseButtonSingle').is(':checked'),
+				showMoreIndicator: $('#opt-showMoreIndicator').is(':checked'),
+				moreIndicatorAction: $('#opt-moreIndicatorAction').val() || 'modal',
+				enableKeyboard: $('#opt-enableKeyboard').is(':checked'),
+				hoverEffect: $('#opt-hoverEffect').is(':checked'),
+				captions: $('#opt-captions').is(':checked'),
+				captionPosition: $('#opt-captionPosition').val() || 'bottom',
+				captionsData: $('#opt-captionsData').val() || 'title',
+				captionDelay: parseInt($('#opt-captionDelay').val()) || 0,
+				modalColumns: parseInt($('#opt-modalColumns').val()) || 4,
+				modalWidth: $('#opt-modalWidth').val() || '80vw'
+			};
+			
+			// Add moreIndicatorText if it has a value
+			var moreIndicatorText = $('#opt-moreIndicatorText').val();
+			if (moreIndicatorText) {
+				options.moreIndicatorText = moreIndicatorText;
+			}
+			
+	// Build responsive settings first
+	var resp0 = $('#opt-responsive-0').val();
+	var resp768 = $('#opt-responsive-768').val();
+	var resp1024 = $('#opt-responsive-1024').val();
+	
+	if (resp0 || resp768 || resp1024) {
+		options.responsive = {};
+		if (resp0) options.responsive[0] = { columns: parseInt(resp0) };
+		if (resp768) options.responsive[768] = { columns: parseInt(resp768) };
+		if (resp1024) options.responsive[1024] = { columns: parseInt(resp1024) };
+	} else {
+		// Only set columns if responsive is not being used
+		var columns = $('#opt-columns').val();
+		if (columns) options.columns = parseInt(columns);
+	}
+	
+	var step = $('#opt-step').val();
+	if (step) options.step = parseInt(step);
+	
+	var maxImages = $('#opt-maxImages').val();
+	if (maxImages) options.maxImages = parseInt(maxImages);		// Initialize gallery
+		$gallery.vnsGallery(options);			// Generate code
+			var code = "$('.gallery').vnsGallery({\n";
+			var lines = [];
+			for (var key in options) {
+				var value = options[key];
+				if (key === 'responsive' && typeof value === 'object') {
+					// Format responsive object nicely
+					var respLines = [];
+					for (var bp in value) {
+						respLines.push("        " + bp + ": { columns: " + value[bp].columns + " }");
+					}
+					lines.push("    responsive: {\n" + respLines.join(',\n') + "\n    }");
+				} else if (typeof value === 'string') {
+					lines.push("    " + key + ": '" + value + "'");
+				} else {
+					lines.push("    " + key + ": " + value);
+				}
+			}
+			code += lines.join(',\n');
+			code += "\n});";
+			
+			$('#generated-code').text(code);
+		}
+		
+		function copyGeneratedCode() {
+			var code = $('#generated-code').text();
+			navigator.clipboard.writeText(code).then(function() {
+				alert('Code copied to clipboard!');
+			}, function() {
+				// Fallback for older browsers
+				var textarea = document.createElement('textarea');
+				textarea.value = code;
+				document.body.appendChild(textarea);
+				textarea.select();
+				document.execCommand('copy');
+				document.body.removeChild(textarea);
+				alert('Code copied to clipboard!');
+			});
+		}
+	</script>
+</body>
+
+</html>
