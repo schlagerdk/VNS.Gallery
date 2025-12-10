@@ -93,7 +93,7 @@
 		<!-- Demo 1: Basic Usage -->
 		<div class="demo-section">
 			<h2>Demo 1: Basic Usage</h2>
-			<p>The simplest setup - just add images in a div and initialize the plugin:</p>
+			<p>The simplest setup - just add images in a div and initialize the plugin. Drag the carousel with your mouse or swipe with your finger to navigate!</p>
 			<pre><code>&lt;div class="myGallery"&gt;
 	&lt;img src="img1.jpg" alt="Image 1"&gt;
 	&lt;img src="img2.jpg" alt="Image 2"&gt;
@@ -120,11 +120,13 @@
 
 		<!-- Demo 2: With Loop -->
 		<div class="demo-section">
-			<h2>Demo 2: With Loop Enabled</h2>
-			<p>Enable loop to navigate in a circle through both thumbnails and lightbox:</p>
+			<h2>Demo 2: With Loop & Touch/Drag Support</h2>
+			<p>Enable loop to navigate in a circle through both thumbnails and lightbox. Touch/drag support is enabled by default - try dragging the carousel with your mouse or finger!</p>
 			<pre><code>var gallery = $('.gallery-loop').vnsGallery({
 	loop: true,
-	step: 2  // Step 2 images at a time
+	step: 2,  // Step 2 images at a time
+	enableDrag: true,  // Enable drag/swipe (default: true)
+	dragThreshold: 50  // Minimum drag distance in pixels (default: 50)
 });</code></pre>
 
 		<div class="gallery-loop">
@@ -163,6 +165,24 @@
 			<img src="img/thumb/photo-18.jpg" data-fullsize="img/full/photo-18.jpg" alt="Billede 4">
 			<img src="img/thumb/photo-19.jpg" data-fullsize="img/full/photo-19.jpg" alt="Billede 5">
 			<img src="img/thumb/photo-20.jpg" data-fullsize="img/full/photo-20.jpg" alt="Billede 6">
+		</div>
+		</div>
+
+		<!-- Demo 3.5: Without Drag -->
+		<div class="demo-section">
+			<h2>Demo 3.5: Disable Drag Navigation</h2>
+			<p>If you prefer to only use the navigation buttons, you can disable drag/swipe functionality:</p>
+			<pre><code>var gallery = $('.gallery-no-drag').vnsGallery({
+	enableDrag: false  // Disable drag/swipe navigation
+});</code></pre>
+
+		<div class="gallery-no-drag">
+			<img src="img/thumb/photo-21.jpg" data-fullsize="img/full/photo-21.jpg" alt="Billede 1">
+			<img src="img/thumb/photo-22.jpg" data-fullsize="img/full/photo-22.jpg" alt="Billede 2">
+			<img src="img/thumb/photo-23.jpg" data-fullsize="img/full/photo-23.jpg" alt="Billede 3">
+			<img src="img/thumb/photo-24.jpg" data-fullsize="img/full/photo-24.jpg" alt="Billede 4">
+			<img src="img/thumb/photo-25.jpg" data-fullsize="img/full/photo-25.jpg" alt="Billede 5">
+			<img src="img/thumb/photo-26.jpg" data-fullsize="img/full/photo-26.jpg" alt="Billede 6">
 		</div>
 		</div>
 
@@ -243,7 +263,7 @@ gallery.destroy();</code></pre>
 			<button type="button" class="btn btn-primary" onclick="openGallery()">Open Gallery (Grid)</button>
 			<button type="button" class="btn btn-primary" onclick="openImage()">Open Image #3</button>
 		</div>
-		
+
 			<div class="alert alert-info mt-3">
 			<strong>Tip:</strong> Once the modal is open, use these methods:
 			<ul class="mb-0">
@@ -351,7 +371,7 @@ gallery.destroy();</code></pre>
 		<h2>Demo 9: Thumbnail vs Fullsize Images</h2>
 		<p>Use <code>data-fullsize</code> attribute to specify a larger image for single view. Carousel and grid use thumbnails for performance, single view loads fullsize:</p>
 		<pre><code>&lt;img src="thumbnail.jpg" data-fullsize="fullsize.jpg" alt="Image"&gt;</code></pre>
-		
+
 	<div class="gallery-thumbnails">
 		<img src="img/thumb/photo-06.jpg" data-fullsize="img/full/photo-06.jpg" alt="Image 1">
 		<img src="img/thumb/photo-07.jpg" data-fullsize="img/full/photo-07.jpg" alt="Image 2">
@@ -366,7 +386,7 @@ gallery.destroy();</code></pre>
 	<div class="demo-section">
 		<h2>Demo 10: Interactive Demo Builder 🎨</h2>
 		<p>Customize all options and see the result in real-time:</p>
-		
+
 		<div class="row">
 			<div class="col-md-4">
 				<h4>Options</h4>
@@ -540,7 +560,7 @@ gallery.destroy();</code></pre>
 	</div>		<!-- Options Reference -->
 		<div class="demo-section">
 			<h2>Options Reference</h2>
-			
+
 			<h3>Image Attributes</h3>
 			<p>You can use the following data attributes on your <code>&lt;img&gt;</code> tags:</p>
 			<ul>
@@ -549,7 +569,7 @@ gallery.destroy();</code></pre>
 			<p><strong>Example:</strong></p>
 			<pre><code>&lt;img src="thumbnail-small.jpg" data-fullsize="photo-large.jpg" alt="Photo"&gt;</code></pre>
 			<p>This improves performance by loading small thumbnails for the carousel and grid, then loading full-size images only when viewing a single image.</p>
-			
+
 			<h3 class="mt-4">Plugin Options</h3>
 			<table class="table table-striped">
 				<thead>
@@ -792,7 +812,14 @@ $('.myGallery').on('prev', function(e, index) { ... });</code></pre>
 			nextText: 'Next ▶',
 			thumbPrevText: '‹',
 			thumbNextText: '›'
-		});			// Demo 4: Events
+		});
+
+		// Demo 3.5: Without Drag
+		$('.gallery-no-drag').vnsGallery({
+			enableDrag: false
+		});
+
+			// Demo 4: Events
 			var eventConsole = $('#console-events');
 			function logEvent(msg) {
 				var time = new Date().toLocaleTimeString();
@@ -838,7 +865,7 @@ $('.myGallery').on('prev', function(e, index) { ... });</code></pre>
 		window.gallery = $('.gallery-methods').vnsGallery({
 			loop: true
 		});
-		
+
 		// Demo 6: Static Grid
 		$('.gallery-static').vnsGallery({
 			useCarousel: false,
@@ -847,25 +874,25 @@ $('.myGallery').on('prev', function(e, index) { ... });</code></pre>
 			showMoreIndicator: true,
 			moreIndicatorAction: 'load'
 		});
-		
+
 		// Demo 7: Many Columns (Front Page)
 		$('.gallery-front-columns').vnsGallery({
 			useCarousel: false,
 			columns: 10
 		});
-		
+
 		// Demo 8: Many Columns (Modal)
 		$('.gallery-many-columns').vnsGallery({
 			modalColumns: 10,
 			modalWidth: '95vw'
 		});
-		
+
 		// Demo 9: Thumbnail/Fullsize
 		$('.gallery-thumbnails').vnsGallery();
-		
+
 		// Demo 11: Few images
 		$('.gallery-few').vnsGallery();
-		
+
 		// Initialize interactive demo
 		applyDemoOptions();
 		});
@@ -873,12 +900,12 @@ $('.myGallery').on('prev', function(e, index) { ... });</code></pre>
 		// Interactive Demo Builder Functions
 		function applyDemoOptions() {
 			var $gallery = $('#interactive-gallery');
-			
+
 			// Destroy existing gallery instance
 			if ($gallery.data('vnsGallery')) {
 				$gallery.data('vnsGallery').destroy();
 			}
-			
+
 		// Reset gallery HTML
 		$gallery.html(`
 			<img src="img/thumb/photo-12.jpg" data-fullsize="img/full/photo-12.jpg" alt="Beautiful sunset" title="Beautiful sunset over the ocean">
@@ -910,18 +937,18 @@ $('.myGallery').on('prev', function(e, index) { ... });</code></pre>
 				modalColumns: parseInt($('#opt-modalColumns').val()) || 4,
 				modalWidth: $('#opt-modalWidth').val() || '80vw'
 			};
-			
+
 			// Add moreIndicatorText if it has a value
 			var moreIndicatorText = $('#opt-moreIndicatorText').val();
 			if (moreIndicatorText) {
 				options.moreIndicatorText = moreIndicatorText;
 			}
-			
+
 	// Build responsive settings first
 	var resp0 = $('#opt-responsive-0').val();
 	var resp768 = $('#opt-responsive-768').val();
 	var resp1024 = $('#opt-responsive-1024').val();
-	
+
 	if (resp0 || resp768 || resp1024) {
 		options.responsive = {};
 		if (resp0) options.responsive[0] = { columns: parseInt(resp0) };
@@ -932,10 +959,10 @@ $('.myGallery').on('prev', function(e, index) { ... });</code></pre>
 		var columns = $('#opt-columns').val();
 		if (columns) options.columns = parseInt(columns);
 	}
-	
+
 	var step = $('#opt-step').val();
 	if (step) options.step = parseInt(step);
-	
+
 	var maxImages = $('#opt-maxImages').val();
 	if (maxImages) options.maxImages = parseInt(maxImages);		// Initialize gallery
 		$gallery.vnsGallery(options);			// Generate code
@@ -958,10 +985,10 @@ $('.myGallery').on('prev', function(e, index) { ... });</code></pre>
 			}
 			code += lines.join(',\n');
 			code += "\n});";
-			
+
 			$('#generated-code').text(code);
 		}
-		
+
 		function copyGeneratedCode() {
 			var code = $('#generated-code').text();
 			navigator.clipboard.writeText(code).then(function() {

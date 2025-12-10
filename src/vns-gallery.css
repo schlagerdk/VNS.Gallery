@@ -147,7 +147,7 @@ body.vns-gallery-no-scroll {
 	.vns-gallery-modal-body {
 		padding: 0.5rem;
 	}
-	
+
 	.vns-gallery-modal-close {
 		top: -8px;
 		font-size: 35px;
@@ -217,11 +217,24 @@ body.vns-gallery-no-scroll {
 	position: relative;
 	overflow: hidden;
 	margin: 0 -0.25rem;
+	cursor: grab;
+	user-select: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+}
+
+.vns-gallery-thumbnail-carousel-wrapper.vns-gallery-dragging {
+	cursor: grabbing;
 }
 
 .vns-gallery-thumbnail-carousel {
 	display: flex;
 	transition: transform 0.3s ease;
+}
+
+.vns-gallery-dragging .vns-gallery-thumbnail-carousel {
+	transition: none;
 }
 
 /* Default responsive columns when data-columns is not specified */
@@ -384,17 +397,17 @@ body.vns-gallery-no-scroll {
 		max-width: 100% !important;
 		min-width: auto;
 	}
-	
+
 	.vns-gallery-modal-dialog {
 		max-width: 100%;
 		margin: 0.5rem;
 	}
-	
+
 	.vns-gallery-modal-content {
 		padding: 0.5rem;
 		border-radius: 8px;
 	}
-	
+
 	.vns-gallery-single-img {
 		max-height: 70vh;
 	}

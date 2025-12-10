@@ -83,6 +83,8 @@ $('.gallery').vnsGallery({
 | `showCloseButtonGrid` | Boolean | `false` | Show close (X) button in grid view |
 | `showCloseButtonSingle` | Boolean | `false` | Show close (X) button in single view |
 | `enableKeyboard` | Boolean | `true` | Enable keyboard navigation |
+| `enableDrag` | Boolean | `true` | Enable mouse/touch drag on carousel |
+| `dragThreshold` | Number | `50` | Minimum drag distance (in pixels) to trigger navigation |
 | `hoverEffect` | Boolean | `false` | Enable hover effect on thumbnails and more indicator |
 
 ### Caption Options
