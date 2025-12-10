@@ -194,9 +194,4 @@ Open `demo/index.html` in your browser to see all features and the interactive d
 
 ## License
 
-MIT License
-
-## Author
-
-Vital New Software Aps
-Martin H. Schläger
+[MIT](https://choosealicense.com/licenses/mit/)
