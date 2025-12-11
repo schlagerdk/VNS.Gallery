@@ -57,8 +57,8 @@ if [ $? -eq 0 ]; then
 
     # Update demo/index.html with new version
     echo "📝 Updating demo/index.html with version $CURRENT_VERSION..."
-    sed -i '' "s|../dist/vns-gallery-[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.css|../dist/vns-gallery-$CURRENT_VERSION.css|g" demo/index.html
-    sed -i '' "s|../dist/vns-gallery-[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.js|../dist/vns-gallery-$CURRENT_VERSION.js|g" demo/index.html
+    sed -i '' "s|../dist/vns-gallery-[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.min\.css|../dist/vns-gallery-$CURRENT_VERSION.min.css|g" demo/index.html
+    sed -i '' "s|../dist/vns-gallery-[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.min\.js|../dist/vns-gallery-$CURRENT_VERSION.min.js|g" demo/index.html
 
     echo ""
     echo "✅ Build completed successfully!"
