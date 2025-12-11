@@ -56,9 +56,8 @@ if [ $? -eq 0 ]; then
     find dist -type f \( -name "*.js" -o -name "*.css" \) -exec sed -i '' $'s/\r$//' {} \;
 
     # Update demo/index.html with new version
-    echo "📝 Updating demo/index.html with version $CURRENT_VERSION..."
-    sed -i '' "s|../dist/vns-gallery-[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.min\.css|../dist/vns-gallery-$CURRENT_VERSION.min.css|g" demo/index.html
-    sed -i '' "s|../dist/vns-gallery-[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.min\.js|../dist/vns-gallery-$CURRENT_VERSION.min.js|g" demo/index.html
+    echo "📝 Updating demo/index.html..."
+    # No version replacement needed - files have static names
 
     echo ""
     echo "✅ Build completed successfully!"
