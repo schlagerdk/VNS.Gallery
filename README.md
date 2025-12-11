@@ -80,8 +80,8 @@ $('.gallery').vnsGallery({
 |--------|------|---------|-------------|
 | `showNavigation` | Boolean | `true` | Show prev/next arrows in lightbox |
 | `showCounter` | Boolean | `true` | Show image counter |
-| `showCloseButtonGrid` | Boolean | `false` | Show close (X) button in grid view |
-| `showCloseButtonSingle` | Boolean | `false` | Show close (X) button in single view |
+| `showCloseButtonGrid` | Boolean | `true` | Show close (X) button in grid view |
+| `showCloseButtonSingle` | Boolean | `true` | Show close (X) button in single view |
 | `enableKeyboard` | Boolean | `true` | Enable keyboard navigation |
 | `enableDrag` | Boolean | `true` | Enable mouse/touch drag on carousel |
 | `dragThreshold` | Number | `50` | Minimum drag distance (in pixels) to trigger navigation |
