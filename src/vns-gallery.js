@@ -20,18 +20,18 @@
 		moreIndicatorAction: 'modal',   // Action on click: 'modal' (open gallery) or 'load' (load more images)
 		moreIndicatorText: '...',       // Text for the more indicator
 
-	// Navigation options
-	showNavigation: true,           // Show prev/next arrows in lightbox
-	showCounter: true,              // Show image counter
-	showCloseButtonGrid: true,      // Show close (X) button in grid view
-	showCloseButtonSingle: true,    // Show close (X) button in single view
-	enableKeyboard: true,           // Enable keyboard navigation
+		// Navigation options
+		showNavigation: true,           // Show prev/next arrows in lightbox
+		showCounter: true,              // Show image counter
+		showCloseButtonGrid: true,      // Show close (X) button in grid view
+		showCloseButtonSingle: true,    // Show close (X) button in single view
+		enableKeyboard: true,           // Enable keyboard navigation
 		enableDrag: true,               // Enable mouse/touch drag on carousel
 		dragThreshold: 50,              // Minimum drag distance (in pixels) to trigger navigation
 		hoverEffect: false,             // Enable hover effect on thumbnails and more indicator
 
 		// Caption options
-		captions: true,                 // Show captions if available
+		captions: false,                 // Show captions if available
 		captionSelector: 'img',         // Element to get caption from: 'img' or 'self' (the container)
 		captionType: 'attr',            // How to get caption: 'attr', 'data', or 'text'
 		captionsData: 'alt',            // Attribute name to get caption from (e.g., 'title', 'alt')
