@@ -92,6 +92,34 @@ if [ $? -eq 0 ]; then
             if [[ $REPLY =~ ^[YyJj]$ ]]; then
                 echo "📤 Pushing to remote..."
                 git push && git push --tags
+
+                # Create GitHub release if gh CLI is available
+                if command -v gh &> /dev/null; then
+                    echo ""
+                    read -p "Create GitHub release? (y/n): " -n 1 -r
+                    echo ""
+                    if [[ $REPLY =~ ^[YyJj]$ ]]; then
+                        echo "📦 Creating GitHub release..."
+                        gh release create "v$NEW_VERSION" \
+                            --title "v$NEW_VERSION" \
+                            --notes "Release version $NEW_VERSION" \
+                            dist/vns-gallery.js \
+                            dist/vns-gallery.min.js \
+                            dist/vns-gallery.css \
+                            dist/vns-gallery.min.css \
+                            dist/vns-gallery.min.css.map
+
+                        if [ $? -eq 0 ]; then
+                            echo "✅ GitHub release created successfully!"
+                        else
+                            echo "❌ Failed to create GitHub release"
+                        fi
+                    fi
+                else
+                    echo "ℹ️  GitHub CLI (gh) not installed. Skipping release creation."
+                    echo "   Install with: brew install gh"
+                fi
+
                 echo ""
                 echo "🎉 Release $NEW_VERSION completed and pushed!"
             else

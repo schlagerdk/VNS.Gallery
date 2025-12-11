@@ -1,6 +1,6 @@
 /*!
  * VNS.Gallery - jQuery Plugin
- * @version 1.0.0
+ * @version 1.0.2
  * @author Martin H. Schläger
  * @license MIT
  * @repository https://github.com/schlagerdk/VNS.Gallery
