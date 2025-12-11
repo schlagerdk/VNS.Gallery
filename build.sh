@@ -76,7 +76,7 @@ if [ $? -eq 0 ]; then
             # Check if there are changes to commit
             if [ -n "$(git status --porcelain)" ]; then
                 echo "📝 Committing changes..."
-                git add package.json dist/ demo/index.html
+                git add package.json package-lock.json dist/ demo/index.html
                 git commit -m "Release version $NEW_VERSION"
             fi
 

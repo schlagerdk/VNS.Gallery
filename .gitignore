@@ -6,9 +6,8 @@
 *.swo
 *~
 
-# Node modules (if you add build tools later)
+# Node modules
 node_modules/
-package-lock.json
 yarn.lock
 
 # Build files - dist folder is committed for releases
