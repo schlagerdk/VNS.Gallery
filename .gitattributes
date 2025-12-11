@@ -12,6 +12,10 @@
 *.html text eol=lf
 *.txt text eol=lf
 
+# Dist files should also use LF
+dist/*.js text eol=lf
+dist/*.css text eol=lf
+
 # Binary files
 *.png binary
 *.jpg binary

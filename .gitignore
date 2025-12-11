@@ -25,6 +25,3 @@ Desktop.ini
 *.tmp
 *.bak
 *.cache
-
-# Build script
-build.sh

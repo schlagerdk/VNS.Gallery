@@ -418,6 +418,15 @@ body.vns-gallery-no-scroll {
 	height: auto;
 	max-height: 75vh;
 	object-fit: contain;
+	cursor: grab;
+	user-select: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+}
+
+.vns-gallery-single-container.vns-gallery-dragging .vns-gallery-single-img {
+	cursor: grabbing;
 }
 
 .vns-gallery-lightbox-header {
