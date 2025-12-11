@@ -51,15 +51,15 @@
 		// Navigation options
 		showNavigation: true,           // Show prev/next arrows in lightbox
 		showCounter: true,              // Show image counter
-		showCloseButtonGrid: false,     // Show close (X) button in grid view
-		showCloseButtonSingle: false,   // Show close (X) button in single view
+		showCloseButtonGrid: true,      // Show close (X) button in grid view
+		showCloseButtonSingle: true,    // Show close (X) button in single view
 		enableKeyboard: true,           // Enable keyboard navigation
 		enableDrag: true,               // Enable mouse/touch drag on carousel
 		dragThreshold: 50,              // Minimum drag distance (in pixels) to trigger navigation
 		hoverEffect: false,             // Enable hover effect on thumbnails and more indicator
 
 		// Caption options
-		captions: true,                 // Show captions if available
+		captions: false,                 // Show captions if available
 		captionSelector: 'img',         // Element to get caption from: 'img' or 'self' (the container)
 		captionType: 'attr',            // How to get caption: 'attr', 'data', or 'text'
 		captionsData: 'alt',            // Attribute name to get caption from (e.g., 'title', 'alt')
@@ -112,18 +112,17 @@
 		this.modal = null;
 		this.resizeTimeout = null;
 
-		// Drag/swipe state
-		this.dragState = {
-			isDragging: false,
-			startX: 0,
-			startY: 0,
-			currentX: 0,
-			currentTranslate: 0,
-			prevTranslate: 0,
-			animationID: null
-		};
-
-		this.init();
+	// Drag/swipe state
+	this.dragState = {
+		isDragging: false,
+		isModalDrag: false,
+		startX: 0,
+		startY: 0,
+		currentX: 0,
+		currentTranslate: 0,
+		prevTranslate: 0,
+		animationID: null
+	};		this.init();
 	}
 
 	// Plugin methods
@@ -514,20 +513,23 @@ applyResponsiveSettings: function() {
 				self.close();
 			});
 
-			// Click backdrop to close
-			this.$modal.on('click', function(e) {
-				if ($(e.target).hasClass('vns-gallery-modal')) {
-					self.close();
-				}
-			});
-
-			// Touch/Drag events for carousel
-			if (this.options.enableDrag && this.options.useCarousel) {
-				this.bindDragEvents();
+		// Click backdrop to close
+		this.$modal.on('click', function(e) {
+			if ($(e.target).hasClass('vns-gallery-modal')) {
+				self.close();
 			}
-		},
+		});
 
-	thumbPrev: function() {
+		// Touch/Drag events for carousel
+		if (this.options.enableDrag && this.options.useCarousel) {
+			this.bindDragEvents();
+		}
+
+		// Touch/Drag events for modal single image view
+		if (this.options.enableDrag) {
+			this.bindModalDragEvents();
+		}
+	},	thumbPrev: function() {
 		var stepSize = this.getStepSize();
 		var beforePos = this.thumbPosition;
 		this.thumbPosition -= stepSize;
@@ -816,7 +818,11 @@ applyResponsiveSettings: function() {
 	},
 
 	dragStart: function(e) {
+		// Don't start carousel drag if modal is open
+		if (this.$modal && this.$modal.hasClass('vns-gallery-open')) return;
+
 		this.dragState.isDragging = true;
+		this.dragState.isModalDrag = false;
 		this.dragState.startX = e.pageX || e.clientX;
 		this.dragState.startY = e.pageY || e.clientY;
 		this.dragState.currentX = this.dragState.startX;
@@ -826,7 +832,7 @@ applyResponsiveSettings: function() {
 	},
 
 	dragMove: function(e) {
-		if (!this.dragState.isDragging) return;
+		if (!this.dragState.isDragging || this.dragState.isModalDrag) return;
 
 		this.dragState.currentX = e.pageX || e.clientX;
 
@@ -835,7 +841,7 @@ applyResponsiveSettings: function() {
 	},
 
 	dragEnd: function(e) {
-		if (!this.dragState.isDragging) return;
+		if (!this.dragState.isDragging || this.dragState.isModalDrag) return;
 
 		this.dragState.isDragging = false;
 		this.$element.find('.vns-gallery-thumbnail-carousel-wrapper').removeClass('vns-gallery-dragging');
@@ -851,6 +857,99 @@ applyResponsiveSettings: function() {
 			} else {
 				// Dragged left - go next
 				this.thumbNext();
+			}
+		}
+
+		// Reset state
+		this.dragState.currentX = 0;
+	},
+
+	bindModalDragEvents: function() {
+		var self = this;
+		var $singleContainer = this.$modal.find('.vns-gallery-single-container');
+
+		if (!$singleContainer.length) return;
+
+		// Prevent default drag behavior on modal images
+		$singleContainer.find('img').on('dragstart', function(e) {
+			e.preventDefault();
+		});
+
+		// Mouse events
+		$singleContainer.on('mousedown', '.vns-gallery-single-img', function(e) {
+			self.modalDragStart(e);
+		});
+
+		$(document).on('mousemove.vnsGalleryModalDrag-' + self.instanceId, function(e) {
+			if (self.dragState.isDragging && self.dragState.isModalDrag) {
+				self.modalDragMove(e);
+			}
+		});
+
+		$(document).on('mouseup.vnsGalleryModalDrag-' + self.instanceId, function(e) {
+			if (self.dragState.isModalDrag) {
+				self.modalDragEnd(e);
+			}
+		});
+
+		// Touch events
+		$singleContainer.on('touchstart', '.vns-gallery-single-img', function(e) {
+			self.modalDragStart(e.originalEvent.touches[0]);
+		});
+
+		$singleContainer.on('touchmove', function(e) {
+			if (self.dragState.isDragging && self.dragState.isModalDrag) {
+				self.modalDragMove(e.originalEvent.touches[0]);
+			}
+		});
+
+		$singleContainer.on('touchend', function(e) {
+			if (self.dragState.isModalDrag) {
+				self.modalDragEnd(e);
+			}
+		});
+	},
+
+	modalDragStart: function(e) {
+		this.dragState.isDragging = true;
+		this.dragState.isModalDrag = true;
+		this.dragState.startX = e.pageX || e.clientX;
+		this.dragState.startY = e.pageY || e.clientY;
+		this.dragState.currentX = this.dragState.startX;
+
+		// Add dragging class for CSS styling
+		this.$modal.find('.vns-gallery-single-container').addClass('vns-gallery-dragging');
+	},
+
+	modalDragMove: function(e) {
+		if (!this.dragState.isDragging || !this.dragState.isModalDrag) return;
+
+		this.dragState.currentX = e.pageX || e.clientX;
+
+		// Prevent click events when dragging
+		e.preventDefault();
+	},
+
+	modalDragEnd: function(e) {
+		if (!this.dragState.isDragging || !this.dragState.isModalDrag) return;
+
+		this.dragState.isDragging = false;
+		this.dragState.isModalDrag = false;
+		this.$modal.find('.vns-gallery-single-container').removeClass('vns-gallery-dragging');
+
+		var deltaX = this.dragState.currentX - this.dragState.startX;
+		// For touch events, startY is already stored, so we can calculate deltaY from that
+		var endY = (e.pageY || e.clientY) ? (e.pageY || e.clientY) : this.dragState.startY;
+		var deltaY = Math.abs(endY - this.dragState.startY);
+
+		// Check if drag distance exceeds threshold and is mostly horizontal
+		if (Math.abs(deltaX) > this.options.dragThreshold && Math.abs(deltaX) > deltaY) {
+			if (deltaX > 0) {
+				// Dragged right - go previous
+				this.prev();
+			} else {
+				// Dragged left - go next
+				this.next();
 			}
 		}
 
@@ -884,7 +983,9 @@ applyResponsiveSettings: function() {
 		$(window).off('resize.vnsGallery-' + this.modalId);
 		$(document).off('keydown.vnsGallery-' + this.modalId);
 		$(document).off('mousemove.vnsGalleryDrag-' + this.instanceId);
-		$(document).off('mouseup.vnsGalleryDrag-' + this.instanceId);			// Remove modal
+		$(document).off('mouseup.vnsGalleryDrag-' + this.instanceId);
+		$(document).off('mousemove.vnsGalleryModalDrag-' + this.instanceId);
+		$(document).off('mouseup.vnsGalleryModalDrag-' + this.instanceId);			// Remove modal
 			this.$modal.remove();
 
 			// Remove plugin data
