@@ -34,6 +34,10 @@ if [ ! -z "$NEW_VERSION" ]; then
     echo "🔄 Updating package-lock.json..."
     npm install --package-lock-only
 
+    # Update version in license notice
+    echo "🔄 Updating version in license-notice.txt..."
+    sed -i '' "s/@version [0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*/@version $NEW_VERSION/" src/license-notice.txt
+
     echo "✅ Version updated to $NEW_VERSION"
     CURRENT_VERSION=$NEW_VERSION
     echo ""
