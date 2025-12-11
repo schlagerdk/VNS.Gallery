@@ -1,6 +1,6 @@
 {
   "name": "VNS.Gallery",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "A flexible jQuery image gallery plugin with thumbnails, lightbox, carousel, and grid view",
   "main": "dist/vns-gallery.js",
   "style": "dist/vns-gallery.css",
