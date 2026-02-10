@@ -1,3 +1,9 @@
+/**
+ * VNS.Gallery - jQuery Plugin
+ * Version: 1.0.4
+ * A flexible image gallery plugin with thumbnails, lightbox, and grid view
+ */
+
 .vns-gallery-thumbnail-img {
 	width: 100%;
 	height: auto;

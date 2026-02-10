@@ -42,6 +42,10 @@ if [ ! -z "$NEW_VERSION" ]; then
     echo "🔄 Updating version in vns-gallery.js..."
     sed -i '' "s/Version: [0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*/Version: $NEW_VERSION/" src/vns-gallery.js
 
+    # Update version in vns-gallery.css
+    echo "🔄 Updating version in vns-gallery.css..."
+    sed -i '' "s/Version: [0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*/Version: $NEW_VERSION/" src/vns-gallery.css
+
     echo "✅ Version updated to $NEW_VERSION"
     CURRENT_VERSION=$NEW_VERSION
     echo ""
