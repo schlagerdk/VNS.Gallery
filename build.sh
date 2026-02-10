@@ -103,6 +103,7 @@ if [ $? -eq 0 ]; then
                         gh release create "v$NEW_VERSION" \
                             --title "v$NEW_VERSION" \
                             --notes "Release version $NEW_VERSION" \
+                            --latest \
                             dist/vns-gallery.js \
                             dist/vns-gallery.min.js \
                             dist/vns-gallery.css \
