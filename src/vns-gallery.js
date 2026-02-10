@@ -419,12 +419,14 @@ applyResponsiveSettings: function() {
 
 			// See all button (in carousel)
 			this.$element.on('click', '.vns-gallery-see-all-btn', function() {
+				console.log('🔘 See all button (carousel) clicked');
 				self.openGrid();
 			});
 
 		// Thumbnail click (carousel and static grid)
 		this.$element.on('click', '.vns-gallery-thumbnail-img', function() {
 			var index = $(this).data('index');
+			console.log('🖼️  Thumbnail clicked, index:', index);
 			self.openSingle(index);
 		});
 
@@ -438,6 +440,7 @@ applyResponsiveSettings: function() {
 		});			// Grid image click
 			this.$modal.on('click', '.vns-gallery-grid-img', function() {
 				var index = $(this).data('index');
+				console.log('🖼️  Grid image clicked, index:', index);
 				self.currentIndex = index;
 				self.showSingleImage();
 			});
@@ -453,6 +456,7 @@ applyResponsiveSettings: function() {
 
 			// Show all button (in lightbox)
 			this.$modal.on('click', '.vns-gallery-show-all-btn', function() {
+				console.log('🔘 Show all button (lightbox) clicked');
 				self.showGrid();
 			});
 
@@ -482,12 +486,14 @@ applyResponsiveSettings: function() {
 
 			// Modal close button
 			this.$modal.find('.vns-gallery-modal-close').on('click', function() {
+				console.log('❌ Close button clicked');
 				self.close();
 			});
 
 		// Click backdrop to close
 		this.$modal.on('click', function(e) {
 			if ($(e.target).hasClass('vns-gallery-modal')) {
+				console.log('❌ Backdrop clicked');
 				self.close();
 			}
 		});
@@ -572,25 +578,67 @@ applyResponsiveSettings: function() {
 		this.updateCarousel();
 		this.updateButtonVisibility();
 	},	openGrid: function() {
+		console.log('=== openGrid() called ===');
 		this.showGrid();
 		this.showModal();
 	},	openSingle: function(index) {
+		console.log('=== openSingle() called, index:', index, '===');
 		this.currentIndex = index;
 		this.showModal();
 		this.showSingleImage();
 	},	showGrid: function() {
+		console.log('--- showGrid() called ---');
+		var $grid = this.$modal.find('.vns-gallery-grid');
+		var $dialog = this.$modal.find('.vns-gallery-modal-dialog');
+		var $body = this.$modal.find('.vns-gallery-modal-body');
+
+		console.log('BEFORE showGrid:');
+		console.log('  Grid width:', $grid.css('width'), 'max-width:', $grid.css('max-width'));
+		console.log('  Dialog width:', $dialog.css('width'));
+		console.log('  Body width:', $body.css('width'));
+
 		this.$modal.find('.vns-gallery-single-container').hide();
-		this.$modal.find('.vns-gallery-grid').show();
+		// Use .css() to force display: flex instead of .show() which sets display: block
+		this.$modal.find('.vns-gallery-grid').css('display', 'flex');
 		// Toggle close buttons
 		this.$modal.find('.vns-gallery-close-grid').show();
 		this.$modal.find('.vns-gallery-close-single').hide();
+
+		setTimeout(function() {
+			console.log('AFTER showGrid (with setTimeout):');
+			console.log('  Grid width:', $grid.css('width'), 'max-width:', $grid.css('max-width'));
+			console.log('  Dialog width:', $dialog.css('width'));
+			console.log('  Body width:', $body.css('width'));
+			console.log('  Grid display:', $grid.css('display'));
+		}, 50);
 	},	showSingleImage: function() {
 		var self = this;
+		console.log('--- showSingleImage() called, index:', this.currentIndex, '---');
+
+		var $grid = this.$modal.find('.vns-gallery-grid');
+		var $single = this.$modal.find('.vns-gallery-single-container');
+		var $dialog = this.$modal.find('.vns-gallery-modal-dialog');
+		var $body = this.$modal.find('.vns-gallery-modal-body');
+
+		console.log('BEFORE showSingleImage:');
+		console.log('  Grid width:', $grid.css('width'));
+		console.log('  Single width:', $single.css('width'));
+		console.log('  Dialog width:', $dialog.css('width'));
+		console.log('  Body width:', $body.css('width'));
+
 		this.$modal.find('.vns-gallery-grid').hide();
 		this.$modal.find('.vns-gallery-single-container').show();
 	// Toggle close buttons
 	this.$modal.find('.vns-gallery-close-grid').hide();
-	this.$modal.find('.vns-gallery-close-single').show();		var image = this.images[this.currentIndex];
+	this.$modal.find('.vns-gallery-close-single').show();
+
+		setTimeout(function() {
+			console.log('AFTER showSingleImage (with setTimeout):');
+			console.log('  Grid width:', $grid.css('width'));
+			console.log('  Single width:', $single.css('width'));
+			console.log('  Dialog width:', $dialog.css('width'));
+			console.log('  Body width:', $body.css('width'));
+		}, 50);		var image = this.images[this.currentIndex];
 
 		// Show loading spinner
 		var $img = this.$modal.find('.vns-gallery-single-img');
@@ -679,6 +727,19 @@ applyResponsiveSettings: function() {
 
 	showModal: function() {
 		var self = this;
+		console.log('>>> showModal() called <<<');
+
+		var $grid = this.$modal.find('.vns-gallery-grid');
+		var $single = this.$modal.find('.vns-gallery-single-container');
+		var $dialog = this.$modal.find('.vns-gallery-modal-dialog');
+		var $body = this.$modal.find('.vns-gallery-modal-body');
+
+		console.log('Modal state on showModal:');
+		console.log('  Grid display:', $grid.css('display'), 'width:', $grid.css('width'));
+		console.log('  Single display:', $single.css('display'), 'width:', $single.css('width'));
+		console.log('  Dialog width:', $dialog.css('width'));
+		console.log('  Body width:', $body.css('width'));
+
 		this.options.onShow.call(this);
 		this.$element.trigger('show');
 
@@ -693,6 +754,19 @@ applyResponsiveSettings: function() {
 
 	hideModal: function() {
 		var self = this;
+		console.log('<<< hideModal() called >>>');
+
+		var $grid = this.$modal.find('.vns-gallery-grid');
+		var $single = this.$modal.find('.vns-gallery-single-container');
+		var $dialog = this.$modal.find('.vns-gallery-modal-dialog');
+		var $body = this.$modal.find('.vns-gallery-modal-body');
+
+		console.log('Modal state BEFORE hiding:');
+		console.log('  Grid display:', $grid.css('display'), 'width:', $grid.css('width'));
+		console.log('  Single display:', $single.css('display'), 'width:', $single.css('width'));
+		console.log('  Dialog width:', $dialog.css('width'));
+		console.log('  Body width:', $body.css('width'));
+
 		this.options.onClose.call(this);
 		this.$element.trigger('close');
 
@@ -700,12 +774,28 @@ applyResponsiveSettings: function() {
 		$('body').removeClass('vns-gallery-no-scroll');
 
 		setTimeout(function() {
+			console.log('--- Resetting modal to grid view ---');
+			// Reset modal to grid view when closing
+			// This ensures modal opens correctly next time
+			self.$modal.find('.vns-gallery-single-container').hide();
+			// Use .css() to force display: flex instead of .show() which sets display: block
+			self.$modal.find('.vns-gallery-grid').css('display', 'flex');
+			self.$modal.find('.vns-gallery-close-grid').show();
+			self.$modal.find('.vns-gallery-close-single').hide();
+
+			console.log('Modal state AFTER reset:');
+			console.log('  Grid display:', $grid.css('display'), 'width:', $grid.css('width'));
+			console.log('  Single display:', $single.css('display'), 'width:', $single.css('width'));
+			console.log('  Dialog width:', $dialog.css('width'));
+			console.log('  Body width:', $body.css('width'));
+
 			self.options.onClosed.call(self);
 			self.$element.trigger('closed');
 		}, 150);
 	},
 
 	close: function() {
+		console.log('*** close() called ***');
 		this.hideModal();
 	},
 

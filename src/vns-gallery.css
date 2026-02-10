@@ -168,6 +168,9 @@ body.vns-gallery-no-scroll {
 .vns-gallery-grid .col-auto {
 	padding: 0;
 	margin: 0;
+	display: block;
+	box-sizing: border-box;
+	aspect-ratio: 1 / 1;
 }
 
 /* Dynamic grid columns - gap is 12px between items */
