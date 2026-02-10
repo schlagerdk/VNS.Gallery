@@ -38,6 +38,10 @@ if [ ! -z "$NEW_VERSION" ]; then
     echo "🔄 Updating version in license-notice.txt..."
     sed -i '' "s/@version [0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*/@version $NEW_VERSION/" src/license-notice.txt
 
+    # Update version in vns-gallery.js
+    echo "🔄 Updating version in vns-gallery.js..."
+    sed -i '' "s/Version: [0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*/Version: $NEW_VERSION/" src/vns-gallery.js
+
     echo "✅ Version updated to $NEW_VERSION"
     CURRENT_VERSION=$NEW_VERSION
     echo ""
