@@ -2,6 +2,10 @@
 
 A flexible jQuery image gallery plugin with thumbnails, lightbox, carousel, and grid view.
 
+Latest release: **1.0.5**
+
+- Seamless infinite thumbnail looping in `loop: true` mode (no visible jump back to first image)
+
 ## Features
 
 - 📱 Fully responsive with customizable breakpoints
