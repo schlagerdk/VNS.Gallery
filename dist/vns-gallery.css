@@ -270,6 +270,10 @@ body.vns-gallery-no-scroll {
 	transition: transform 0.3s ease;
 }
 
+.vns-gallery-thumbnail-carousel.vns-gallery-no-transition {
+	transition: none !important;
+}
+
 .vns-gallery-dragging .vns-gallery-thumbnail-carousel {
 	transition: none;
 }

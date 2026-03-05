@@ -111,6 +111,9 @@
 		this.maxPosition = 0;
 		this.modal = null;
 		this.resizeTimeout = null;
+		this.loopItemCount = 0;
+		this.hasInfiniteThumbLoop = false;
+		this.loopNormalizeTimeout = null;
 
 	// Drag/swipe state
 	this.dragState = {
@@ -336,9 +339,37 @@
 			this.itemsPerPage = this.getItemsPerPage();
 			this.totalItems = this.images.length;
 			this.maxPosition = Math.max(0, this.totalItems - this.itemsPerPage);
+			this.setupInfiniteThumbLoop();
 			this.updateCarousel();
 			this.updateButtonVisibility();
 		},
+
+	setupInfiniteThumbLoop: function() {
+		var $carousel = this.$element.find('.vns-gallery-thumbnail-carousel');
+
+		this.hasInfiniteThumbLoop = false;
+		this.loopItemCount = 0;
+
+		if (!this.options.loop || !this.options.useCarousel || this.totalItems <= this.itemsPerPage) {
+			this.thumbPosition = Math.min(this.thumbPosition, this.maxPosition);
+			return;
+		}
+
+		var $originalItems = $carousel.children('.vns-gallery-thumbnail-item').not('[data-vns-clone="1"]');
+		if (!$originalItems.length) return;
+
+		var $beforeClones = $originalItems.clone();
+		var $afterClones = $originalItems.clone();
+		$beforeClones.attr('data-vns-clone', '1');
+		$afterClones.attr('data-vns-clone', '1');
+
+		$carousel.prepend($beforeClones);
+		$carousel.append($afterClones);
+
+		this.hasInfiniteThumbLoop = true;
+		this.loopItemCount = this.totalItems;
+		this.thumbPosition = this.loopItemCount;
+	},
 
 getItemsPerPage: function() {
 	// Priority: 1) currentResponsiveColumns, 2) explicit columns option, 3) responsive default based on width, 4) fallback to 4
@@ -389,9 +420,17 @@ applyResponsiveSettings: function() {
 			return this.options.step !== null ? this.options.step : this.itemsPerPage;
 		},
 
-	updateCarousel: function() {
+	updateCarousel: function(disableTransition) {
+		var $carousel = this.$element.find('.vns-gallery-thumbnail-carousel');
+		if (disableTransition) {
+			$carousel.addClass('vns-gallery-no-transition');
+		}
 		var percentage = -(this.thumbPosition * (100 / this.itemsPerPage));
-		this.$element.find('.vns-gallery-thumbnail-carousel').css('transform', 'translateX(' + percentage + '%)');
+		$carousel.css('transform', 'translateX(' + percentage + '%)');
+		if (disableTransition) {
+			$carousel[0].offsetHeight;
+			$carousel.removeClass('vns-gallery-no-transition');
+		}
 	},	updateButtonVisibility: function() {
 		var $prevBtn = this.$element.find('.vns-gallery-thumb-prev');
 		var $nextBtn = this.$element.find('.vns-gallery-thumb-next');
@@ -537,8 +576,14 @@ applyResponsiveSettings: function() {
 		}
 	},	thumbPrev: function() {
 		var stepSize = this.getStepSize();
-		var beforePos = this.thumbPosition;
 		this.thumbPosition -= stepSize;
+
+		if (this.hasInfiniteThumbLoop) {
+			this.updateCarousel();
+			this.normalizeInfiniteThumbPosition();
+			this.updateButtonVisibility();
+			return;
+		}
 
 		if (this.thumbPosition < 0) {
 			if (this.options.loop) {
@@ -558,6 +603,13 @@ applyResponsiveSettings: function() {
 		var beforePos = this.thumbPosition;
 		this.thumbPosition += stepSize;
 
+		if (this.hasInfiniteThumbLoop) {
+			this.updateCarousel();
+			this.normalizeInfiniteThumbPosition();
+			this.updateButtonVisibility();
+			return;
+		}
+
 		// Check if we need to adjust for step size vs maxPosition
 		if (this.thumbPosition > this.maxPosition) {
 			if (this.options.loop) {
@@ -576,6 +628,36 @@ applyResponsiveSettings: function() {
 			this.updateCarousel();
 			this.updateButtonVisibility();
 		},
+
+	normalizeInfiniteThumbPosition: function() {
+		var self = this;
+
+		if (!this.hasInfiniteThumbLoop) return;
+		if (this.loopNormalizeTimeout) {
+			clearTimeout(this.loopNormalizeTimeout);
+		}
+
+		this.loopNormalizeTimeout = setTimeout(function() {
+			if (!self.hasInfiniteThumbLoop) return;
+
+			var min = self.loopItemCount;
+			var maxExclusive = self.loopItemCount * 2;
+			var position = self.thumbPosition;
+
+			while (position >= maxExclusive) {
+				position -= self.loopItemCount;
+			}
+
+			while (position < min) {
+				position += self.loopItemCount;
+			}
+
+			if (position !== self.thumbPosition) {
+				self.thumbPosition = position;
+				self.updateCarousel(true);
+			}
+		}, 320);
+	},
 
 	handleResize: function() {
 		// Store previous responsive columns
@@ -602,7 +684,9 @@ applyResponsiveSettings: function() {
 
 		this.itemsPerPage = this.getItemsPerPage();
 		this.maxPosition = Math.max(0, this.totalItems - this.itemsPerPage);
-		this.thumbPosition = Math.min(this.thumbPosition, this.maxPosition);
+		if (!this.hasInfiniteThumbLoop) {
+			this.thumbPosition = Math.min(this.thumbPosition, this.maxPosition);
+		}
 		this.updateCarousel();
 		this.updateButtonVisibility();
 	},	openGrid: function() {
@@ -1075,7 +1159,14 @@ applyResponsiveSettings: function() {
 		$(document).off('mousemove.vnsGalleryDrag-' + this.instanceId);
 		$(document).off('mouseup.vnsGalleryDrag-' + this.instanceId);
 		$(document).off('mousemove.vnsGalleryModalDrag-' + this.instanceId);
-		$(document).off('mouseup.vnsGalleryModalDrag-' + this.instanceId);			// Remove modal
+		$(document).off('mouseup.vnsGalleryModalDrag-' + this.instanceId);
+
+		if (this.loopNormalizeTimeout) {
+			clearTimeout(this.loopNormalizeTimeout);
+			this.loopNormalizeTimeout = null;
+		}
+
+		// Remove modal
 			this.$modal.remove();
 
 			// Remove plugin data
