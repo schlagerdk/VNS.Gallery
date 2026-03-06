@@ -1,6 +1,6 @@
 /*!
  * VNS.Gallery - jQuery Plugin
- * @version 1.0.4
+ * @version 1.0.6
  * @author Martin H. Schläger
  * @license MIT
  * @repository https://github.com/schlagerdk/VNS.Gallery
@@ -28,7 +28,7 @@
 
 /**
  * VNS.Gallery - jQuery Plugin
- * Version: 1.0.4
+ * Version: 1.0.6
  * A flexible image gallery plugin with thumbnails, lightbox, and grid view
  */
 (function ($) {
@@ -340,7 +340,8 @@
 			this.totalItems = this.images.length;
 			this.maxPosition = Math.max(0, this.totalItems - this.itemsPerPage);
 			this.setupInfiniteThumbLoop();
-			this.updateCarousel();
+			// Avoid visible initial slide when loop starts at cloned offset.
+			this.updateCarousel(true);
 			this.updateButtonVisibility();
 		},
 
