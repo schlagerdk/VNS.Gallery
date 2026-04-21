@@ -1,6 +1,6 @@
 /*!
  * VNS.Gallery - jQuery Plugin
- * @version 1.0.6
+ * @version 1.0.7
  * @author Martin H. Schläger
  * @license MIT
  * @repository https://github.com/schlagerdk/VNS.Gallery
@@ -28,7 +28,7 @@
 
 /**
  * VNS.Gallery - jQuery Plugin
- * Version: 1.0.6
+ * Version: 1.0.7
  * A flexible image gallery plugin with thumbnails, lightbox, and grid view
  */
 (function ($) {
@@ -222,8 +222,11 @@
 			this.$element.append(carouselHTML);
 		} else {
 		// Build static grid
-		var columns = this.options.columns || 4;
-		var gridHTML = '<div class="vns-gallery-static-grid" data-columns="' + columns + '">';			var maxImages = this.options.maxImages;
+		// Use responsive columns if set, otherwise explicit columns option.
+		// If neither is set, omit data-columns so CSS media-query defaults (2/3/4) apply.
+		var columns = this.currentResponsiveColumns || this.options.columns || null;
+		var columnsAttr = columns ? ' data-columns="' + columns + '"' : '';
+		var gridHTML = '<div class="vns-gallery-static-grid"' + columnsAttr + '>';			var maxImages = this.options.maxImages;
 			var totalImages = this.images.length;
 			var imagesToShow = (maxImages && maxImages < totalImages) ? maxImages : totalImages;
 			var hasMore = maxImages && totalImages > maxImages;
@@ -675,6 +678,20 @@ applyResponsiveSettings: function() {
 			return; // initCarousel will handle all updates
 		}
 
+		// Update static grid columns when not using carousel
+		if (!this.options.useCarousel && previousColumns !== this.currentResponsiveColumns) {
+			var $grid = this.$element.find('.vns-gallery-static-grid');
+			if ($grid.length) {
+				if (this.currentResponsiveColumns) {
+					$grid.attr('data-columns', this.currentResponsiveColumns);
+				} else if (this.options.columns !== null) {
+					$grid.attr('data-columns', this.options.columns);
+				} else {
+					$grid.removeAttr('data-columns');
+				}
+			}
+		}
+
 		// Update data-columns attribute on carousel if using responsive
 		if (this.options.columns === null && this.currentResponsiveColumns) {
 			var $carousel = this.$element.find('.vns-gallery-thumbnail-carousel-container');
@@ -683,13 +700,15 @@ applyResponsiveSettings: function() {
 			}
 		}
 
-		this.itemsPerPage = this.getItemsPerPage();
-		this.maxPosition = Math.max(0, this.totalItems - this.itemsPerPage);
-		if (!this.hasInfiniteThumbLoop) {
-			this.thumbPosition = Math.min(this.thumbPosition, this.maxPosition);
+		if (this.options.useCarousel) {
+			this.itemsPerPage = this.getItemsPerPage();
+			this.maxPosition = Math.max(0, this.totalItems - this.itemsPerPage);
+			if (!this.hasInfiniteThumbLoop) {
+				this.thumbPosition = Math.min(this.thumbPosition, this.maxPosition);
+			}
+			this.updateCarousel();
+			this.updateButtonVisibility();
 		}
-		this.updateCarousel();
-		this.updateButtonVisibility();
 	},	openGrid: function() {
 		console.log('=== openGrid() called ===');
 		this.showGrid();
