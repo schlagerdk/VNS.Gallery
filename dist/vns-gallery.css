@@ -1,6 +1,6 @@
 /*!
  * VNS.Gallery - jQuery Plugin
- * @version 1.0.7
+ * @version 1.0.8
  * @author Martin H. Schläger
  * @license MIT
  * @repository https://github.com/schlagerdk/VNS.Gallery
@@ -28,7 +28,7 @@
 
 /**
  * VNS.Gallery - jQuery Plugin
- * Version: 1.0.7
+ * Version: 1.0.8
  * A flexible image gallery plugin with thumbnails, lightbox, and grid view
  */
 
@@ -104,6 +104,7 @@
 .vns-gallery-modal.vns-gallery-open {
 	display: block;
 	opacity: 1;
+	overscroll-behavior: contain;
 }
 
 .vns-gallery-modal-dialog {
@@ -155,6 +156,15 @@
 	font-family: Arial, sans-serif;
 }
 
+/* Keep icon glyphs consistent across browsers/devices */
+.vns-gallery-modal button {
+	font-family: Arial, sans-serif;
+	font-weight: 400;
+	line-height: 1;
+	-webkit-appearance: none;
+	appearance: none;
+}
+
 .vns-gallery-modal-close:hover {
 	opacity: 1;
 	background: rgba(0, 0, 0, 0.8);
@@ -184,7 +194,7 @@ body.vns-gallery-no-scroll {
 
 	.vns-gallery-modal-close {
 		top: -8px;
-		font-size: 35px;
+		font-size: 20px;
 	}
 }
 
@@ -439,14 +449,20 @@ body.vns-gallery-no-scroll {
 		min-width: auto;
 	}
 
+	/* Keep dialog centered on mobile in both grid and single view */
 	.vns-gallery-modal-dialog {
-		max-width: 100%;
-		margin: 0.5rem;
+		max-width: calc(100vw - 1rem);
+		margin: 0.5rem auto;
 	}
 
 	.vns-gallery-modal-content {
 		padding: 0.5rem;
 		border-radius: 8px;
+	}
+
+	/* Avoid close button protruding too far and creating visual right-side bias */
+	.vns-gallery-modal-close {
+		right: -4px;
 	}
 
 	.vns-gallery-single-img {
@@ -506,6 +522,41 @@ body.vns-gallery-no-scroll {
 	color: white;
 	border-radius: 8px;
 	cursor: pointer;
+}
+
+/* Use CSS-drawn chevrons for single-view nav to avoid iOS glyph substitutions */
+.vns-gallery-prev-btn,
+.vns-gallery-next-btn {
+	position: relative;
+	font-size: 0;
+	line-height: 0;
+	min-width: 40px;
+	min-height: 36px;
+	padding: 8px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.vns-gallery-prev-btn::before,
+.vns-gallery-next-btn::before {
+	content: "";
+	width: 10px;
+	height: 10px;
+	display: block;
+	border-top: 2px solid #fff;
+}
+
+.vns-gallery-prev-btn::before {
+	border-left: 2px solid #fff;
+	transform: rotate(-45deg);
+	margin-left: 2px;
+}
+
+.vns-gallery-next-btn::before {
+	border-right: 2px solid #fff;
+	transform: rotate(45deg);
+	margin-right: 2px;
 }
 
 #prevBtn:hover,
@@ -578,12 +629,14 @@ body.vns-gallery-no-scroll {
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	touch-action: none;
 }
 
 .vns-gallery-single-img {
 	transition: opacity 0.2s ease;
 	position: relative;
 	z-index: 1;
+	touch-action: none;
 }
 
 .vns-gallery-single-img.vns-gallery-loading-img {

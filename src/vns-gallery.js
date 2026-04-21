@@ -1,6 +1,6 @@
 /**
  * VNS.Gallery - jQuery Plugin
- * Version: 1.0.7
+ * Version: 1.0.8
  * A flexible image gallery plugin with thumbnails, lightbox, and grid view
  */
 (function ($) {
@@ -1060,16 +1060,17 @@ applyResponsiveSettings: function() {
 
 		// Touch events
 		$singleContainer.on('touchstart', '.vns-gallery-single-img', function(e) {
-			self.modalDragStart(e.originalEvent.touches[0]);
+			if (!e.originalEvent.touches || !e.originalEvent.touches.length) return;
+			self.modalDragStart(e.originalEvent.touches[0], e);
 		});
 
-		$singleContainer.on('touchmove', function(e) {
-			if (self.dragState.isDragging && self.dragState.isModalDrag) {
-				self.modalDragMove(e.originalEvent.touches[0]);
+		$singleContainer.on('touchmove', '.vns-gallery-single-img', function(e) {
+			if (self.dragState.isDragging && self.dragState.isModalDrag && e.originalEvent.touches && e.originalEvent.touches.length) {
+				self.modalDragMove(e.originalEvent.touches[0], e);
 			}
 		});
 
-		$singleContainer.on('touchend', function(e) {
+		$singleContainer.on('touchend touchcancel', '.vns-gallery-single-img', function(e) {
 			if (self.dragState.isModalDrag) {
 				self.modalDragEnd(e);
 			}
@@ -1087,13 +1088,15 @@ applyResponsiveSettings: function() {
 		this.$modal.find('.vns-gallery-single-container').addClass('vns-gallery-dragging');
 	},
 
-	modalDragMove: function(e) {
+	modalDragMove: function(point, originalEvent) {
 		if (!this.dragState.isDragging || !this.dragState.isModalDrag) return;
 
-		this.dragState.currentX = e.pageX || e.clientX;
+		this.dragState.currentX = point.pageX || point.clientX;
 
-		// Prevent click events when dragging
-		e.preventDefault();
+		// Prevent native page/modal scrolling while swiping the image on touch devices.
+		if (originalEvent && typeof originalEvent.preventDefault === 'function') {
+			originalEvent.preventDefault();
+		}
 	},
 
 	modalDragEnd: function(e) {
@@ -1105,7 +1108,12 @@ applyResponsiveSettings: function() {
 
 		var deltaX = this.dragState.currentX - this.dragState.startX;
 		// For touch events, startY is already stored, so we can calculate deltaY from that
-		var endY = (e.pageY || e.clientY) ? (e.pageY || e.clientY) : this.dragState.startY;
+		var changedTouch = e && e.originalEvent && e.originalEvent.changedTouches && e.originalEvent.changedTouches[0]
+			? e.originalEvent.changedTouches[0]
+			: null;
+		var endY = changedTouch
+			? (changedTouch.pageY || changedTouch.clientY)
+			: ((e.pageY || e.clientY) ? (e.pageY || e.clientY) : this.dragState.startY);
 		var deltaY = Math.abs(endY - this.dragState.startY);
 
 		// Check if drag distance exceeds threshold and is mostly horizontal
